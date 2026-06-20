@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <img src="IMG_4719.png"
-     style="position:absolute;left:8px;top:6px;width:150px;height:150px;border-radius:50%;">
   <title>Princess Weather Command Center</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -41,7 +39,6 @@
       color: #ff66cc;
     }
 
-    /* MAIN GRID */
     .grid {
       display: grid;
       grid-template-columns: 2.2fr 1fr;
@@ -64,7 +61,7 @@
       color: #ccc;
     }
 
-    /* RADAR (ZOOMED SOUTH FLORIDA CENTERED) */
+    /* RADAR */
     .radarWrap {
       position: relative;
       height: 100%;
@@ -76,9 +73,7 @@
       width: 150%;
       height: 150%;
       object-fit: cover;
-
-      /* SHIFT DOWN TO MIAMI / FORT LAUDERDALE ZONE */
-      transform: translate(-20%, -15%);
+      transform: translate(-18%, -12%);
     }
 
     .sweep {
@@ -100,56 +95,40 @@
       100% { transform: translateX(100%); }
     }
 
-    /* RIGHT SIDE STACK */
+    /* LIGHTNING EFFECT (NO SOUND) */
+    @keyframes lightningFlash {
+      0% { filter: brightness(1); }
+      10% { filter: brightness(2.5) contrast(1.2); }
+      20% { filter: brightness(1); }
+      100% { filter: brightness(1); }
+    }
+
+    .lightning {
+      animation: lightningFlash 1.2s infinite;
+    }
+
     .stack {
       display: grid;
       grid-template-rows: 1fr 1fr;
       gap: 8px;
     }
 
-    /* TEMPERATURE (75% SIZE vs before) */
     .temp {
       font-size: 28px;
       margin: 0;
     }
 
-    /* META TEXT (200% MORE IMPORTANT VISUAL WEIGHT) */
     .meta {
       font-size: 16px;
       font-weight: bold;
       margin-top: 4px;
     }
 
-    /* TEMPERATURE COLORS */
     .hot { color: #ff3b3b; }
     .warm { color: #ff8c1a; }
     .mild { color: #ffd84d; }
     .cool { color: #66ccff; }
 
-@keyframes lightningFlash {
-  0%   { filter: brightness(1); }
-  10%  { filter: brightness(2.5) contrast(1.2); }
-  20%  { filter: brightness(1); }
-  100% { filter: brightness(1); }
-}
-
-/* This is what we will turn ON and OFF */
-.lightning {
-  animation: lightningFlash 1.2s infinite;
-}
-
-    @keyframes lightningFlash {
-  0%   { filter: brightness(1); }
-  10%  { filter: brightness(2.5) contrast(1.2); }
-  20%  { filter: brightness(1); }
-  100% { filter: brightness(1); }
-}
-
-/* This is what we will turn ON and OFF */
-.lightning {
-  animation: lightningFlash 1.2s infinite;
-}
-    
   </style>
 </head>
 
@@ -163,36 +142,34 @@
 
 <div class="grid">
 
-  <!-- 🛰 RADAR (FOCUSED SOUTH FLORIDA) -->
+  <!-- RADAR PANEL -->
   <div class="panel" id="radarPanel">
-    <h2>South Florida Radar Focus (Miami / Fort Lauderdale Center)</h2>
+
+    <h2>South Florida Radar Focus</h2>
 
     <div class="radarWrap">
       <img class="radar"
         src="https://radar.weather.gov/ridge/standard/SOUTHEAST_loop.gif">
       <div class="sweep"></div>
     </div>
+
   </div>
 
-  <!-- RIGHT SIDE -->
+  <!-- WEATHER STACK -->
   <div class="stack">
 
     <div class="panel">
       <h2>Deerfield Beach</h2>
-
       <div id="dfbTemp" class="temp">--</div>
       <div id="dfbMeta" class="meta">Loading...</div>
       <div id="dfbTime" class="meta"></div>
-
     </div>
 
     <div class="panel">
       <h2>Anthem, Arizona</h2>
-
       <div id="azTemp" class="temp">--</div>
       <div id="azMeta" class="meta">Loading...</div>
       <div id="azTime" class="meta"></div>
-
     </div>
 
   </div>
@@ -201,15 +178,38 @@
 
 <script>
 
-let dfb = {};
-let az = {};
+/* ALERT SYSTEM (LIGHTNING TRIGGER) */
+async function loadAlerts() {
 
-/* COLOR CLASS LOGIC */
-function tempClass(t) {
-  if (t >= 90) return "temp hot";
-  if (t >= 80) return "temp warm";
-  if (t >= 70) return "temp mild";
-  return "temp cool";
+  try {
+    let r = await fetch("https://api.weather.gov/alerts/active?area=FL");
+    let data = await r.json();
+
+    let alerts = data.features.length;
+
+    let radar = document.getElementById("radarPanel");
+
+    if (!radar) return;
+
+    if (alerts >= 1 && alerts <= 2) {
+      radar.classList.add("lightning");
+    }
+
+    else if (alerts >= 3 && alerts <= 4) {
+      radar.classList.add("lightning");
+    }
+
+    else if (alerts >= 5) {
+      radar.classList.add("lightning");
+    }
+
+    else {
+      radar.classList.remove("lightning");
+    }
+
+  } catch (e) {
+    // silent fail
+  }
 }
 
 /* WEATHER */
@@ -217,10 +217,10 @@ async function loadWeather() {
 
   // Deerfield Beach
   let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current_weather=true&temperature_unit=fahrenheit");
-  dfb = (await r1.json()).current_weather;
+  let dfb = (await r1.json()).current_weather;
 
   let dfbTempEl = document.getElementById("dfbTemp");
-  dfbTempEl.className = tempClass(dfb.temperature);
+  dfbTempEl.className = "temp " + tempClass(dfb.temperature);
   dfbTempEl.innerHTML = dfb.temperature + "°F";
 
   document.getElementById("dfbMeta").innerHTML =
@@ -231,10 +231,10 @@ async function loadWeather() {
 
   // Anthem AZ
   let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current_weather=true&temperature_unit=fahrenheit");
-  az = (await r2.json()).current_weather;
+  let az = (await r2.json()).current_weather;
 
   let azTempEl = document.getElementById("azTemp");
-  azTempEl.className = tempClass(az.temperature);
+  azTempEl.className = "temp " + tempClass(az.temperature);
   azTempEl.innerHTML = az.temperature + "°F";
 
   document.getElementById("azMeta").innerHTML =
@@ -245,8 +245,20 @@ async function loadWeather() {
 
 }
 
+/* TEMP COLOR LOGIC */
+function tempClass(t) {
+  if (t >= 90) return "hot";
+  if (t >= 80) return "warm";
+  if (t >= 70) return "mild";
+  return "cool";
+}
+
+/* RUN LOOPS */
 loadWeather();
+loadAlerts();
+
 setInterval(loadWeather, 300000);
+setInterval(loadAlerts, 300000);
 
 </script>
 
