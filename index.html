@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <img src="IMG_4711.png"
-     style="position:absolute;left:8px;top:6px;width:32px;height:32px;border-radius:50%;">
   <title>Princess Weather Command Center</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -41,9 +39,10 @@
       color: #ff66cc;
     }
 
+    /* MAIN GRID */
     .grid {
       display: grid;
-      grid-template-columns: 2fr 1fr;
+      grid-template-columns: 2.2fr 1fr;
       gap: 8px;
       padding: 8px;
       height: calc(100vh - 60px);
@@ -63,6 +62,7 @@
       color: #ccc;
     }
 
+    /* RADAR (ZOOMED SOUTH FLORIDA CENTERED) */
     .radarWrap {
       position: relative;
       height: 100%;
@@ -70,12 +70,13 @@
       border-radius: 8px;
     }
 
-    /* “ZOOMED” RADAR LOOK */
     .radar {
-      width: 140%;
-      height: 140%;
+      width: 150%;
+      height: 150%;
       object-fit: cover;
-      transform: translate(-15%, -10%);
+
+      /* SHIFT DOWN TO MIAMI / FORT LAUDERDALE ZONE */
+      transform: translate(-20%, -15%);
     }
 
     .sweep {
@@ -104,22 +105,24 @@
       gap: 8px;
     }
 
-    /* BIGGER BUT 75% SCALE */
+    /* TEMPERATURE (75% SIZE vs before) */
     .temp {
-      font-size: 32px; /* reduced from earlier big sizes (~75%) */
-      color: #00d4ff;
+      font-size: 28px;
       margin: 0;
     }
 
+    /* META TEXT (200% MORE IMPORTANT VISUAL WEIGHT) */
     .meta {
-      font-size: 13px;
-      color: #aaa;
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 4px;
     }
 
-    /* EMERGENCY MODE */
-    body.emergency {
-      background: #1a0000;
-    }
+    /* TEMPERATURE COLORS */
+    .hot { color: #ff3b3b; }
+    .warm { color: #ff8c1a; }
+    .mild { color: #ffd84d; }
+    .cool { color: #66ccff; }
 
   </style>
 </head>
@@ -134,9 +137,9 @@
 
 <div class="grid">
 
-  <!-- 🌀 RADAR (FOCUSED SE FL / DEERFIELD ZONE SIMULATION) -->
+  <!-- 🛰 RADAR (FOCUSED SOUTH FLORIDA) -->
   <div class="panel">
-    <h2>Deerfield Beach Radar Focus (75–100 miles)</h2>
+    <h2>South Florida Radar Focus (Miami / Fort Lauderdale Center)</h2>
 
     <div class="radarWrap">
       <img class="radar"
@@ -150,16 +153,20 @@
 
     <div class="panel">
       <h2>Deerfield Beach</h2>
-      <div class="temp" id="dfbTemp">--</div>
-      <div class="meta" id="dfbMeta">Loading...</div>
-      <div class="meta" id="dfbTime"></div>
+
+      <div id="dfbTemp" class="temp">--</div>
+      <div id="dfbMeta" class="meta">Loading...</div>
+      <div id="dfbTime" class="meta"></div>
+
     </div>
 
     <div class="panel">
       <h2>Anthem, Arizona</h2>
-      <div class="temp" id="azTemp">--</div>
-      <div class="meta" id="azMeta">Loading...</div>
-      <div class="meta" id="azTime"></div>
+
+      <div id="azTemp" class="temp">--</div>
+      <div id="azMeta" class="meta">Loading...</div>
+      <div id="azTime" class="meta"></div>
+
     </div>
 
   </div>
@@ -171,26 +178,41 @@
 let dfb = {};
 let az = {};
 
+/* COLOR CLASS LOGIC */
+function tempClass(t) {
+  if (t >= 90) return "temp hot";
+  if (t >= 80) return "temp warm";
+  if (t >= 70) return "temp mild";
+  return "temp cool";
+}
+
 /* WEATHER */
 async function loadWeather() {
 
-  // Deerfield Beach (F)
+  // Deerfield Beach
   let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current_weather=true&temperature_unit=fahrenheit");
   dfb = (await r1.json()).current_weather;
 
-  document.getElementById("dfbTemp").innerHTML = dfb.temperature + "°F";
-  document.getElementById("dfbMeta").innerHTML = "Wind " + dfb.windspeed + " mph";
+  let dfbTempEl = document.getElementById("dfbTemp");
+  dfbTempEl.className = tempClass(dfb.temperature);
+  dfbTempEl.innerHTML = dfb.temperature + "°F";
 
-  // Anthem AZ (F)
+  document.getElementById("dfbMeta").innerHTML =
+    "Wind: " + dfb.windspeed + " mph • Fort Lauderdale Region";
+
+  document.getElementById("dfbTime").innerHTML =
+    "Local time: " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+  // Anthem AZ
   let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current_weather=true&temperature_unit=fahrenheit");
   az = (await r2.json()).current_weather;
 
-  document.getElementById("azTemp").innerHTML = az.temperature + "°F";
-  document.getElementById("azMeta").innerHTML = "Wind " + az.windspeed + " mph";
+  let azTempEl = document.getElementById("azTemp");
+  azTempEl.className = tempClass(az.temperature);
+  azTempEl.innerHTML = az.temperature + "°F";
 
-  // LOCAL TIMES (DEVICE BASED)
-  document.getElementById("dfbTime").innerHTML =
-    "Local time: " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  document.getElementById("azMeta").innerHTML =
+    "Wind: " + az.windspeed + " mph • Arizona";
 
   document.getElementById("azTime").innerHTML =
     "Local time: " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
