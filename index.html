@@ -137,6 +137,18 @@
 .lightning {
   animation: lightningFlash 1.2s infinite;
 }
+
+    @keyframes lightningFlash {
+  0%   { filter: brightness(1); }
+  10%  { filter: brightness(2.5) contrast(1.2); }
+  20%  { filter: brightness(1); }
+  100% { filter: brightness(1); }
+}
+
+/* This is what we will turn ON and OFF */
+.lightning {
+  animation: lightningFlash 1.2s infinite;
+}
     
   </style>
 </head>
