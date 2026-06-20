@@ -10,50 +10,45 @@
       background: #000;
       color: #fff;
       font-family: Arial;
-      transition: background 0.5s;
+      overflow: hidden;
     }
 
-    /* 🔴 EMERGENCY MODE */
-    body.emergency {
-      background: #1a0000;
-    }
-
-    /* TOP STRIP */
-    .topbar {
-      background: #ff00aa;
-      color: black;
-      font-family: "Courier New", monospace;
-      font-weight: bold;
-      padding: 6px;
-      text-align: center;
-      letter-spacing: 1px;
-      font-size: 14px;
-    }
-
+    /* HEADER (clean + smaller + official pink text) */
     header {
-      padding: 10px;
+      padding: 6px 10px;
       text-align: center;
       border-bottom: 1px solid #222;
       position: relative;
     }
 
-    .princess {
+    .title {
+      font-family: "Courier New", monospace;
+      font-weight: bold;
+      font-size: 15px;
+      color: #ff66cc;
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      font-size: 11px;
+      color: #aaa;
+    }
+
+    .badge {
       position: absolute;
-      top: 8px;
-      right: 8px;
-      background: #111;
-      border: 1px solid #333;
-      padding: 6px 10px;
-      border-radius: 10px;
+      right: 10px;
+      top: 6px;
       font-size: 11px;
       color: #ff66cc;
     }
 
+    /* MAIN LAYOUT */
     .grid {
       display: grid;
       grid-template-columns: 2fr 1fr;
-      gap: 10px;
-      padding: 10px;
+      gap: 8px;
+      padding: 8px;
+      height: calc(100vh - 60px);
     }
 
     .panel {
@@ -61,45 +56,59 @@
       border: 1px solid #222;
       border-radius: 10px;
       padding: 10px;
-    }
-
-    .smallGrid {
-      display: grid;
-      grid-template-rows: 1fr 1fr;
-      gap: 10px;
+      position: relative;
+      overflow: hidden;
     }
 
     h2 {
-      margin: 0 0 8px 0;
-      font-size: 13px;
-      color: #ddd;
+      margin: 0 0 6px 0;
+      font-size: 12px;
+      color: #ccc;
     }
 
-    .big {
-      font-size: 18px;
+    /* BIG TEMPS */
+    .temp {
+      font-size: 42px;
       color: #00d4ff;
+      margin: 0;
     }
 
-    iframe {
+    .meta {
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    /* RADAR */
+    .radar {
       width: 100%;
-      height: 420px;
-      border: 0;
+      height: 100%;
+      object-fit: cover;
       border-radius: 8px;
     }
 
-    /* ⚡ LIGHTNING EFFECT (SIMULATED) */
-    .flash {
-      animation: flash 1.2s infinite;
+    /* RADAR SWEEP (VISUAL ONLY) */
+    .sweep {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(120deg,
+        transparent 40%,
+        rgba(0,255,255,0.12),
+        transparent 60%);
+      animation: sweep 2.8s linear infinite;
+      pointer-events: none;
     }
 
-    @keyframes flash {
-      0% { box-shadow: 0 0 0 rgba(255,255,255,0); }
-      50% { box-shadow: 0 0 20px rgba(255,255,255,0.4); }
-      100% { box-shadow: 0 0 0 rgba(255,255,255,0); }
+    @keyframes sweep {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
     }
 
-    .alert-red {
-      color: #ff4444;
+    /* EMERGENCY MODE (VISUAL ONLY) */
+    body.emergency {
+      background: #140000;
     }
 
   </style>
@@ -107,41 +116,40 @@
 
 <body>
 
-<div class="topbar">
-  PRINCESS WEATHER COMMAND CENTER — VISUAL MONITOR SYSTEM
-</div>
-
 <header>
-  <h1>Princess Weather Command Center</h1>
-
-  <div class="princess" id="princessAI">
-    🐾 Princess AI v3<br>
-    Initializing...
-  </div>
+  <div class="title">PRINCESS WEATHER COMMAND CENTER</div>
+  <div class="subtitle">Visual Monitoring System • No Audio Mode</div>
+  <div class="badge">🐾 PRINCESS AI</div>
 </header>
 
 <div class="grid">
 
-  <!-- 🌀 HURRICANE / RADAR -->
-  <div class="panel" id="stormPanel">
-    <h2>Hurricane / Storm Tracker (NOAA)</h2>
+  <!-- LEFT: RADAR -->
+  <div class="panel">
+    <h2>Hurricane / Radar Feed</h2>
 
-    <iframe src="https://www.nhc.noaa.gov/refresh/graphics_at1+shtml/205749.shtml?cone#contents"></iframe>
+    <div style="position:relative;height:100%;">
+      <img
+        class="radar"
+        src="https://radar.weather.gov/ridge/standard/CONUS_loop.gif"
+      />
+      <div class="sweep"></div>
+    </div>
   </div>
 
-  <!-- RIGHT SIDE -->
-  <div class="smallGrid">
+  <!-- RIGHT: DATA STACK -->
+  <div style="display:grid;grid-template-rows:1fr 1fr;gap:8px;">
 
-    <div class="panel" id="dfbPanel">
+    <div class="panel">
       <h2>Deerfield Beach</h2>
-      <div id="dfbTemp" class="big">Loading...</div>
-      <div id="dfbMood" style="font-size:12px;color:#aaa;"></div>
+      <div class="temp" id="dfbTemp">--</div>
+      <div class="meta" id="dfbMeta">Loading...</div>
     </div>
 
-    <div class="panel" id="azPanel">
+    <div class="panel">
       <h2>Anthem, Arizona</h2>
-      <div id="azTemp" class="big">Loading...</div>
-      <div id="azMood" style="font-size:12px;color:#aaa;"></div>
+      <div class="temp" id="azTemp">--</div>
+      <div class="meta" id="azMeta">Loading...</div>
     </div>
 
   </div>
@@ -149,69 +157,49 @@
 </div>
 
 <script>
+
 let dfb = {};
 let az = {};
-let alertLevel = 0;
+let alerts = 0;
 
 /* WEATHER */
 async function loadWeather() {
 
-  // Deerfield Beach
-  let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current_weather=true");
+  // Deerfield Beach (FORCED F)
+  let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current_weather=true&temperature_unit=fahrenheit");
   dfb = (await r1.json()).current_weather;
 
   document.getElementById("dfbTemp").innerHTML = dfb.temperature + "°F";
+  document.getElementById("dfbMeta").innerHTML =
+    "Wind " + dfb.windspeed + " mph • Local FL";
 
-  // Anthem AZ
-  let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current_weather=true");
+  // Anthem AZ (FORCED F)
+  let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current_weather=true&temperature_unit=fahrenheit");
   az = (await r2.json()).current_weather;
 
   document.getElementById("azTemp").innerHTML = az.temperature + "°F";
+  document.getElementById("azMeta").innerHTML =
+    "Wind " + az.windspeed + " mph • Local AZ";
 
-  updateAI();
 }
 
-/* NOAA ALERTS */
+/* NOAA ALERTS (emergency trigger only) */
 async function loadAlerts() {
-  let r = await fetch("https://api.weather.gov/alerts/active?area=FL");
-  let data = await r.json();
+  try {
+    let r = await fetch("https://api.weather.gov/alerts/active?area=FL");
+    let data = await r.json();
 
-  alertLevel = data.features.length;
+    alerts = data.features.length;
 
-  updateAI();
-}
+    if (alerts >= 3) {
+      document.body.classList.add("emergency");
+    } else {
+      document.body.classList.remove("emergency");
+    }
 
-/* 🐕 PRINCESS AI v3 */
-function updateAI() {
-
-  let dfbMood = "Calm 🐶";
-  let azMood = "Stable 🌵";
-  let aiMood = "All systems normal";
-
-  // EMERGENCY MODE
-  if (alertLevel >= 3) {
-    document.body.classList.add("emergency");
-    aiMood = "HIGH STORM ACTIVITY ⚠️";
-    dfbMood = "Uneasy 🐾";
-  } else {
-    document.body.classList.remove("emergency");
+  } catch (e) {
+    // silent fail (no sound system)
   }
-
-  // WIND / HEAT RESPONSE (SIMPLIFIED)
-  if (dfb.windspeed > 25) dfbMood = "Windy alert 🌬";
-  if (dfb.temperature > 90) dfbMood = "Hot conditions ☀️";
-
-  if (az.temperature > 100) azMood = "Extreme heat 🌵";
-
-  // LIGHTNING SIMULATION
-  if (alertLevel > 0) {
-    document.getElementById("stormPanel").classList.add("flash");
-  }
-
-  document.getElementById("dfbMood").innerHTML = dfbMood;
-  document.getElementById("azMood").innerHTML = azMood;
-  document.getElementById("princessAI").innerHTML =
-    "🐾 Princess AI v3<br>" + aiMood;
 }
 
 /* RUN */
