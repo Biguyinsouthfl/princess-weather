@@ -9,225 +9,217 @@
       margin: 0;
       background: #000;
       color: #fff;
-      font-family: Arial, sans-serif;
+      font-family: Arial;
+      transition: background 0.5s;
+    }
+
+    /* 🔴 EMERGENCY MODE */
+    body.emergency {
+      background: #1a0000;
+    }
+
+    /* TOP STRIP */
+    .topbar {
+      background: #ff00aa;
+      color: black;
+      font-family: "Courier New", monospace;
+      font-weight: bold;
+      padding: 6px;
+      text-align: center;
+      letter-spacing: 1px;
+      font-size: 14px;
     }
 
     header {
-      padding: 18px;
+      padding: 10px;
       text-align: center;
       border-bottom: 1px solid #222;
       position: relative;
     }
 
-    .status {
-      color: #00ff88;
-      font-size: 14px;
-      margin-top: 5px;
-    }
-
-    .dot {
-      height: 8px;
-      width: 8px;
-      background: #00ff88;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 6px;
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.3; }
-      100% { opacity: 1; }
-    }
-
-    .princess-badge {
+    .princess {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 8px;
+      right: 8px;
       background: #111;
       border: 1px solid #333;
-      padding: 8px 10px;
-      border-radius: 12px;
-      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 11px;
       color: #ff66cc;
-      box-shadow: 0 0 10px rgba(255, 102, 204, 0.3);
-      width: 150px;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 2fr 1fr;
       gap: 10px;
       padding: 10px;
     }
 
     .panel {
       background: #111;
-      padding: 15px;
-      border-radius: 10px;
-      min-height: 150px;
       border: 1px solid #222;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .smallGrid {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 10px;
     }
 
     h2 {
-      margin-top: 0;
-      font-size: 16px;
+      margin: 0 0 8px 0;
+      font-size: 13px;
       color: #ddd;
     }
 
     .big {
-      font-size: 20px;
+      font-size: 18px;
       color: #00d4ff;
     }
 
     iframe {
       width: 100%;
-      height: 250px;
+      height: 420px;
       border: 0;
       border-radius: 8px;
     }
+
+    /* ⚡ LIGHTNING EFFECT (SIMULATED) */
+    .flash {
+      animation: flash 1.2s infinite;
+    }
+
+    @keyframes flash {
+      0% { box-shadow: 0 0 0 rgba(255,255,255,0); }
+      50% { box-shadow: 0 0 20px rgba(255,255,255,0.4); }
+      100% { box-shadow: 0 0 0 rgba(255,255,255,0); }
+    }
+
+    .alert-red {
+      color: #ff4444;
+    }
+
   </style>
 </head>
 
 <body>
 
+<div class="topbar">
+  PRINCESS WEATHER COMMAND CENTER — VISUAL MONITOR SYSTEM
+</div>
+
 <header>
   <h1>Princess Weather Command Center</h1>
-  <div class="status"><span class="dot"></span>SYSTEM ONLINE</div>
 
-  <div class="princess-badge">
-    🐾 Princess AI<br>
-    <div id="princessMood">Initializing...</div>
+  <div class="princess" id="princessAI">
+    🐾 Princess AI v3<br>
+    Initializing...
   </div>
 </header>
 
 <div class="grid">
 
-  <div class="panel">
-    <h2>Current Weather</h2>
-    <div id="weather" class="big">Loading...</div>
+  <!-- 🌀 HURRICANE / RADAR -->
+  <div class="panel" id="stormPanel">
+    <h2>Hurricane / Storm Tracker (NOAA)</h2>
+
+    <iframe src="https://www.nhc.noaa.gov/refresh/graphics_at1+shtml/205749.shtml?cone#contents"></iframe>
   </div>
 
-  <div class="panel">
-    <h2>NOAA Alerts (South Florida)</h2>
-    <div id="alerts">Connecting...</div>
-  </div>
+  <!-- RIGHT SIDE -->
+  <div class="smallGrid">
 
-  <div class="panel">
-    <h2>Radar</h2>
-    <iframe src="https://www.weather.gov/jetstream/radar_loop.htm"></iframe>
-  </div>
-
-  <div class="panel">
-    <h2>Princess Status</h2>
-    <div id="princessStatus" class="big">Calm 🐶</div>
-    <div style="font-size:12px;color:#aaa;margin-top:5px;">
-      Behavioral model active
+    <div class="panel" id="dfbPanel">
+      <h2>Deerfield Beach</h2>
+      <div id="dfbTemp" class="big">Loading...</div>
+      <div id="dfbMood" style="font-size:12px;color:#aaa;"></div>
     </div>
+
+    <div class="panel" id="azPanel">
+      <h2>Anthem, Arizona</h2>
+      <div id="azTemp" class="big">Loading...</div>
+      <div id="azMood" style="font-size:12px;color:#aaa;"></div>
+    </div>
+
   </div>
 
 </div>
 
 <script>
-let weatherData = null;
-let alertCount = 0;
+let dfb = {};
+let az = {};
+let alertLevel = 0;
 
 /* WEATHER */
 async function loadWeather() {
-  try {
-    let res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.1224&longitude=-80.1373&current_weather=true");
-    let data = await res.json();
 
-    weatherData = data.current_weather;
+  // Deerfield Beach
+  let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current_weather=true");
+  dfb = (await r1.json()).current_weather;
 
-    let temp = weatherData.temperature;
-    let wind = weatherData.windspeed;
+  document.getElementById("dfbTemp").innerHTML = dfb.temperature + "°F";
 
-    document.getElementById("weather").innerHTML =
-      temp + "°F<br><span style='font-size:12px;color:#aaa;'>Wind " + wind + " mph</span>";
+  // Anthem AZ
+  let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current_weather=true");
+  az = (await r2.json()).current_weather;
 
-    updatePrincessMood();
+  document.getElementById("azTemp").innerHTML = az.temperature + "°F";
 
-  } catch (e) {
-    document.getElementById("weather").innerHTML = "Weather offline";
-  }
+  updateAI();
 }
 
 /* NOAA ALERTS */
 async function loadAlerts() {
-  try {
-    let res = await fetch("https://api.weather.gov/alerts/active?area=FL");
-    let data = await res.json();
+  let r = await fetch("https://api.weather.gov/alerts/active?area=FL");
+  let data = await r.json();
 
-    let events = data.features;
+  alertLevel = data.features.length;
 
-    let southFL = events.filter(a =>
-      a.properties.areaDesc.includes("Broward") ||
-      a.properties.areaDesc.includes("Miami") ||
-      a.properties.areaDesc.includes("Palm Beach")
-    );
-
-    alertCount = southFL.length;
-
-    if (alertCount === 0) {
-      document.getElementById("alerts").innerHTML = "No active alerts";
-    } else {
-      document.getElementById("alerts").innerHTML =
-        southFL.map(a => "⚠ " + a.properties.event).join("<br>");
-    }
-
-    updatePrincessMood();
-
-  } catch (e) {
-    document.getElementById("alerts").innerHTML = "NOAA unavailable";
-  }
+  updateAI();
 }
 
-/* 🐕 PRINCESS AI v2 LOGIC */
-function updatePrincessMood() {
-  if (!weatherData) return;
+/* 🐕 PRINCESS AI v3 */
+function updateAI() {
 
-  let temp = weatherData.temperature;
-  let wind = weatherData.windspeed;
+  let dfbMood = "Calm 🐶";
+  let azMood = "Stable 🌵";
+  let aiMood = "All systems normal";
 
-  let mood = "";
-  let status = "";
-
-  if (alertCount >= 3) {
-    mood = "VERY UNEASY 🐾";
-    status = "High storm activity detected";
-  }
-  else if (alertCount > 0) {
-    mood = "Alert ⚠️";
-    status = "Monitoring weather closely";
-  }
-  else if (wind > 25) {
-    mood = "Worried ears up 🐶";
-    status = "Windy conditions";
-  }
-  else if (temp > 90) {
-    mood = "Hot & lazy ☀️";
-    status = "Too warm for zoomies";
-  }
-  else if (temp < 60) {
-    mood = "Cuddled up 🐾";
-    status = "Chilly vibes";
-  }
-  else {
-    mood = "Happy 🐶";
-    status = "All systems calm";
+  // EMERGENCY MODE
+  if (alertLevel >= 3) {
+    document.body.classList.add("emergency");
+    aiMood = "HIGH STORM ACTIVITY ⚠️";
+    dfbMood = "Uneasy 🐾";
+  } else {
+    document.body.classList.remove("emergency");
   }
 
-  document.getElementById("princessMood").innerHTML = mood;
-  document.getElementById("princessStatus").innerHTML = status;
+  // WIND / HEAT RESPONSE (SIMPLIFIED)
+  if (dfb.windspeed > 25) dfbMood = "Windy alert 🌬";
+  if (dfb.temperature > 90) dfbMood = "Hot conditions ☀️";
+
+  if (az.temperature > 100) azMood = "Extreme heat 🌵";
+
+  // LIGHTNING SIMULATION
+  if (alertLevel > 0) {
+    document.getElementById("stormPanel").classList.add("flash");
+  }
+
+  document.getElementById("dfbMood").innerHTML = dfbMood;
+  document.getElementById("azMood").innerHTML = azMood;
+  document.getElementById("princessAI").innerHTML =
+    "🐾 Princess AI v3<br>" + aiMood;
 }
 
 /* RUN */
 loadWeather();
 loadAlerts();
-setInterval(loadWeather, 600000);
-setInterval(loadAlerts, 600000);
+setInterval(loadWeather, 300000);
+setInterval(loadAlerts, 300000);
+
 </script>
 
 </body>
