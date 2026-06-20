@@ -1,55 +1,234 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Princess Weather Command Center</title>
+  <title>Princess Weather Command Center</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      padding: 18px;
+      text-align: center;
+      border-bottom: 1px solid #222;
+      position: relative;
+    }
+
+    .status {
+      color: #00ff88;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    .dot {
+      height: 8px;
+      width: 8px;
+      background: #00ff88;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+
+    .princess-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #111;
+      border: 1px solid #333;
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      color: #ff66cc;
+      box-shadow: 0 0 10px rgba(255, 102, 204, 0.3);
+      width: 150px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 10px;
+    }
+
+    .panel {
+      background: #111;
+      padding: 15px;
+      border-radius: 10px;
+      min-height: 150px;
+      border: 1px solid #222;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 16px;
+      color: #ddd;
+    }
+
+    .big {
+      font-size: 20px;
+      color: #00d4ff;
+    }
+
+    iframe {
+      width: 100%;
+      height: 250px;
+      border: 0;
+      border-radius: 8px;
+    }
+  </style>
 </head>
-<body style="background:black;color:white;font-family:Arial;margin:0;">
 
-  
+<body>
 
-  <div style="padding:20px;text-align:center;border-bottom:1px solid #333;">
+<header>
+  <h1>Princess Weather Command Center</h1>
+  <div class="status"><span class="dot"></span>SYSTEM ONLINE</div>
 
-    <h1>Princess Weather Command Center</h1>
+  <div class="princess-badge">
+    🐾 Princess AI<br>
+    <div id="princessMood">Initializing...</div>
+  </div>
+</header>
 
-    <p>Status: Online</p>
+<div class="grid">
 
+  <div class="panel">
+    <h2>Current Weather</h2>
+    <div id="weather" class="big">Loading...</div>
   </div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;">
-
-    <div style="background:#111;padding:15px;border-radius:10px;">
-
-      <h2>Current Conditions</h2>
-
-      <p>--</p>
-
-    </div>
-
-    <div style="background:#111;padding:15px;border-radius:10px;">
-
-      <h2>Storm Alerts</h2>
-
-      <p>No alerts</p>
-
-    </div>
-
-    <div style="background:#111;padding:15px;border-radius:10px;">
-
-      <h2>Radar</h2>
-
-      <p>Coming soon</p>
-
-    </div>
-
-    <div style="background:#111;padding:15px;border-radius:10px;">
-
-      <h2>Princess Status</h2>
-
-      <p>Watching weather calmly</p>
-
-    </div>
-
+  <div class="panel">
+    <h2>NOAA Alerts (South Florida)</h2>
+    <div id="alerts">Connecting...</div>
   </div>
+
+  <div class="panel">
+    <h2>Radar</h2>
+    <iframe src="https://www.weather.gov/jetstream/radar_loop.htm"></iframe>
+  </div>
+
+  <div class="panel">
+    <h2>Princess Status</h2>
+    <div id="princessStatus" class="big">Calm 🐶</div>
+    <div style="font-size:12px;color:#aaa;margin-top:5px;">
+      Behavioral model active
+    </div>
+  </div>
+
+</div>
+
+<script>
+let weatherData = null;
+let alertCount = 0;
+
+/* WEATHER */
+async function loadWeather() {
+  try {
+    let res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.1224&longitude=-80.1373&current_weather=true");
+    let data = await res.json();
+
+    weatherData = data.current_weather;
+
+    let temp = weatherData.temperature;
+    let wind = weatherData.windspeed;
+
+    document.getElementById("weather").innerHTML =
+      temp + "°F<br><span style='font-size:12px;color:#aaa;'>Wind " + wind + " mph</span>";
+
+    updatePrincessMood();
+
+  } catch (e) {
+    document.getElementById("weather").innerHTML = "Weather offline";
+  }
+}
+
+/* NOAA ALERTS */
+async function loadAlerts() {
+  try {
+    let res = await fetch("https://api.weather.gov/alerts/active?area=FL");
+    let data = await res.json();
+
+    let events = data.features;
+
+    let southFL = events.filter(a =>
+      a.properties.areaDesc.includes("Broward") ||
+      a.properties.areaDesc.includes("Miami") ||
+      a.properties.areaDesc.includes("Palm Beach")
+    );
+
+    alertCount = southFL.length;
+
+    if (alertCount === 0) {
+      document.getElementById("alerts").innerHTML = "No active alerts";
+    } else {
+      document.getElementById("alerts").innerHTML =
+        southFL.map(a => "⚠ " + a.properties.event).join("<br>");
+    }
+
+    updatePrincessMood();
+
+  } catch (e) {
+    document.getElementById("alerts").innerHTML = "NOAA unavailable";
+  }
+}
+
+/* 🐕 PRINCESS AI v2 LOGIC */
+function updatePrincessMood() {
+  if (!weatherData) return;
+
+  let temp = weatherData.temperature;
+  let wind = weatherData.windspeed;
+
+  let mood = "";
+  let status = "";
+
+  if (alertCount >= 3) {
+    mood = "VERY UNEASY 🐾";
+    status = "High storm activity detected";
+  }
+  else if (alertCount > 0) {
+    mood = "Alert ⚠️";
+    status = "Monitoring weather closely";
+  }
+  else if (wind > 25) {
+    mood = "Worried ears up 🐶";
+    status = "Windy conditions";
+  }
+  else if (temp > 90) {
+    mood = "Hot & lazy ☀️";
+    status = "Too warm for zoomies";
+  }
+  else if (temp < 60) {
+    mood = "Cuddled up 🐾";
+    status = "Chilly vibes";
+  }
+  else {
+    mood = "Happy 🐶";
+    status = "All systems calm";
+  }
+
+  document.getElementById("princessMood").innerHTML = mood;
+  document.getElementById("princessStatus").innerHTML = status;
+}
+
+/* RUN */
+loadWeather();
+loadAlerts();
+setInterval(loadWeather, 600000);
+setInterval(loadAlerts, 600000);
+</script>
 
 </body>
 </html>
