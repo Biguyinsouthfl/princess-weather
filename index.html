@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Princess Weather Command Center</title>
+<title>Princess Weather Command Center v2</title>
 
 <style>
-/* ===== BASE ===== */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -15,28 +14,24 @@
 
 body {
     background: #0b0c10;
-    color: #fff;
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    width: 100vw;
+    color: white;
+    font-family: Arial, sans-serif;
     height: 100vh;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
 }
 
-/* ===== HEADER ===== */
+/* HEADER */
 .header {
     display: flex;
     align-items: center;
-    gap: 15px;
     padding: 10px;
-    background: linear-gradient(90deg, #ff007f, #1a1a1a);
+    background: linear-gradient(90deg,#ff007f,#111);
     border-bottom: 2px solid #45f3ff;
 }
 
 .logo {
-    width: 70px;
-    height: 70px;
+    width: 65px;
+    height: 65px;
     border-radius: 50%;
     overflow: hidden;
     border: 2px solid white;
@@ -48,125 +43,146 @@ body {
     object-fit: cover;
 }
 
-.title h1 {
-    font-size: 24px;
-    color: #fff;
-}
-
-.title p {
-    font-size: 12px;
-    color: #ffb3d9;
-}
-
-/* ===== GRID ===== */
+/* GRID */
 .grid {
-    flex: 1;
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
+    grid-template-columns: 1.3fr 1fr;
+    height: calc(100vh - 85px);
+}
+
+/* LEFT MAP */
+.map {
+    padding: 10px;
+}
+
+.mapBox {
+    width: 100%;
+    height: 100%;
+    border: 2px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.mapBox img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* RIGHT SIDE */
+.right {
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
     gap: 10px;
     padding: 10px;
 }
 
-/* ===== PANELS ===== */
-.panel {
+/* BOXES */
+.box {
     background: #1f2833;
-    border: 1px solid #45f3ff;
     border-radius: 8px;
-    padding: 12px;
+    border: 1px solid #45f3ff;
+    padding: 10px;
 }
 
-/* ===== WEATHER TEXT ===== */
-.city {
-    font-size: 18px;
-    margin-bottom: 5px;
-    color: #45f3ff;
-}
-
-.temp {
-    font-size: 42px;
-    font-weight: bold;
-}
-
-/* COLOR RULES */
-.hot { color: #ff3b3b; }
-.warm { color: #ff8c1a; }
-.mild { color: #ffd84d; }
-.cool { color: #66ccff; }
-
-.meta {
-    font-size: 14px;
-    margin-top: 5px;
-}
-
-/* ===== PRINCESS PANEL ===== */
-.princessBox {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* PRINCESS */
+.princess img {
+    width: 100%;
     height: 100%;
-}
-
-.princessBox img {
-    max-width: 100%;
-    max-height: 260px;
     object-fit: contain;
 }
 
-/* ===== RIGHT SIDE STACK ===== */
-.stack {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+/* TEMP COLORS */
+.hot { color: #ff3b3b; }
+.warm { color: #ff8c1a; }
+.mid { color: #ffd84d; }
+.cool { color: #66ccff; }
+
+.bigTemp {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+/* HURRICANE STATES */
+.safe { border-color: #45f3ff; }
+.watch { border-color: #ffd84d; }
+.warning { border-color: #ff3b3b; animation: pulse 1.5s infinite; }
+
+/* EMERGENCY PULSE */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+/* LIGHTNING OVERLAY */
+.flash {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 999;
 }
 </style>
 </head>
 
 <body>
 
+<div class="flash" id="flash"></div>
+
 <!-- HEADER -->
 <div class="header">
     <div class="logo">
-        <img src="IMG_4728.png" alt="Princess">
+        <img src="IMG_4728.png">
     </div>
-    <div class="title">
-      
+    <div style="margin-left:10px;">
+        <h2>Princess Weather Command Center v2</h2>
+        <small>NO SOUND • LIVE SYSTEM • EMERGENCY READY</small>
     </div>
 </div>
 
 <!-- GRID -->
 <div class="grid">
 
-    <!-- LEFT: WEATHER -->
-    <div class="panel">
-
-        <div class="city">Deerfield Beach, FL</div>
-        <div id="dfbTemp" class="temp">--</div>
-        <div id="dfbMeta" class="meta">Loading...</div>
-        <div id="dfbTime" class="meta"></div>
-
-        <hr style="margin:10px 0;border-color:#333;">
-
-        <div class="city">Anthem, AZ</div>
-        <div id="azTemp" class="temp">--</div>
-        <div id="azMeta" class="meta">Loading...</div>
-        <div id="azTime" class="meta"></div>
-
+    <!-- LEFT MAP -->
+    <div class="map">
+        <div class="mapBox">
+            <img src="https://radar.weather.gov/ridge/standard/SOUTHEAST_loop.gif">
+        </div>
     </div>
 
-    <!-- RIGHT: PRINCESS -->
-    <div class="stack">
+    <!-- RIGHT -->
+    <div class="right">
 
-        <div class="panel princessBox">
-            <img id="princessMood" src="princess_sunny.gif" alt="Princess Mood">
+        <!-- HURRICANE -->
+        <div class="box safe" id="hurricaneBox">
+            <b>Hurricane Intelligence</b><br>
+            Season: Active<br>
+            Storms: Monitoring<br>
+            Status: Normal
         </div>
 
-        <div class="panel">
-            <div style="color:#45f3ff;font-size:14px;margin-bottom:5px;">System Status</div>
-            <div style="font-size:13px;color:#aaa;">
-                Weather feeds active<br>
-                Princess AI monitoring enabled<br>
-                No audio mode
-            </div>
+        <!-- PRINCESS -->
+        <div class="box princess">
+            <img id="princessMood" src="princess_sunny.gif">
+        </div>
+
+        <!-- DEERFIELD -->
+        <div class="box">
+            <b>Deerfield Beach</b><br>
+            <div id="dfbTemp" class="bigTemp">--</div>
+            <div id="dfbTime"></div>
+        </div>
+
+        <!-- ANTHEM -->
+        <div class="box">
+            <b>Anthem, AZ</b><br>
+            <div id="azTemp" class="bigTemp">--</div>
+            <div id="azTime"></div>
         </div>
 
     </div>
@@ -175,79 +191,55 @@ body {
 
 <script>
 
-/* ===== TEMP COLOR FUNCTION ===== */
-function getTempClass(t) {
-    if (t >= 90) return "hot";
-    if (t >= 80) return "warm";
-    if (t >= 70) return "mild";
+function tempClass(t){
+    if(t>=90)return "hot";
+    if(t>=80)return "warm";
+    if(t>=70)return "mid";
     return "cool";
 }
 
-/* ===== PRINCESS MOOD SYSTEM ===== */
-function updatePrincess(temp, condition) {
-    let img = document.getElementById("princessMood");
+function princess(temp, condition){
+    let img=document.getElementById("princessMood");
 
-    condition = condition || "";
+    if(condition?.includes("Rain")) img.src="princess_rain.gif";
+    else if(condition?.includes("Thunder")) img.src="princess_storm.gif";
+    else if(temp>=90) img.src="princess_hot.gif";
+    else img.src="princess_sunny.gif";
 
-    if (condition.includes("Rain") || condition.includes("Shower")) {
-        img.src = "princess_rain.gif";
-    }
-    else if (condition.includes("Thunder") || condition.includes("Storm")) {
-        img.src = "princess_storm.gif";
-    }
-    else if (temp >= 90) {
-        img.src = "princess_hot.gif";
-    }
-    else {
-        img.src = "princess_sunny.gif";
+    // LIGHTNING FLASH (emergency visual)
+    if(temp>=90 || condition?.includes("Thunder")){
+        let f=document.getElementById("flash");
+        f.style.opacity=0.25;
+        setTimeout(()=>f.style.opacity=0,200);
     }
 }
 
-/* ===== WEATHER FUNCTION ===== */
-async function loadWeather() {
+async function load(){
 
-    // Deerfield Beach
-    let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current_weather=true&temperature_unit=fahrenheit");
-    let dfb = (await r1.json()).current_weather;
+let r1=await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current_weather=true&temperature_unit=fahrenheit");
+let dfb=(await r1.json()).current_weather;
 
-    document.getElementById("dfbTemp").className = "temp " + getTempClass(dfb.temperature);
-    document.getElementById("dfbTemp").innerHTML = dfb.temperature + "°F";
+document.getElementById("dfbTemp").className="bigTemp "+tempClass(dfb.temperature);
+document.getElementById("dfbTemp").innerHTML=dfb.temperature+"°F";
 
-    document.getElementById("dfbMeta").innerHTML =
-        "Wind: " + dfb.windspeed + " mph • Fort Lauderdale Region";
+document.getElementById("dfbTime").innerHTML=
+new Date().toLocaleTimeString("en-US",{timeZone:"America/New_York",hour:"2-digit",minute:"2-digit"});
 
-    document.getElementById("dfbTime").innerHTML =
-        "Local time: " + new Date().toLocaleTimeString("en-US", {
-            timeZone: "America/New_York",
-            hour: "2-digit",
-            minute: "2-digit"
-        });
+princess(dfb.temperature,"");
 
-    updatePrincess(dfb.temperature, "");
+let r2=await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current_weather=true&temperature_unit=fahrenheit");
+let az=(await r2.json()).current_weather;
 
+document.getElementById("azTemp").className="bigTemp "+tempClass(az.temperature);
+document.getElementById("azTemp").innerHTML=az.temperature+"°F";
 
-    // Anthem AZ
-    let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current_weather=true&temperature_unit=fahrenheit");
-    let az = (await r2.json()).current_weather;
-
-    document.getElementById("azTemp").className = "temp " + getTempClass(az.temperature);
-    document.getElementById("azTemp").innerHTML = az.temperature + "°F";
-
-    document.getElementById("azMeta").innerHTML =
-        "Wind: " + az.windspeed + " mph • Arizona";
-
-    document.getElementById("azTime").innerHTML =
-        "Local time: " + new Date().toLocaleTimeString("en-US", {
-            timeZone: "America/Phoenix",
-            hour: "2-digit",
-            minute: "2-digit"
-        });
+document.getElementById("azTime").innerHTML=
+new Date().toLocaleTimeString("en-US",{timeZone:"America/Phoenix",hour:"2-digit",minute:"2-digit"});
 
 }
 
-/* ===== START ===== */
-loadWeather();
-setInterval(loadWeather, 300000);
+load();
+setInterval(load,300000);
 
 </script>
 
