@@ -1,268 +1,274 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Princess Weather Command Center</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Princess's Weather Station</title>
+    <style>
+        /* Base Reset & Monitor Optimization (Dell E2210f: 1680x1050) */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #0b0c10;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            width: 1680px;
+            height: 1050px;
+            overflow: hidden; /* Prevents Fire Stick scroll bars */
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
 
-  <style>
-    body {
-      margin: 0;
-      background: #000;
-      color: #fff;
-      font-family: Arial;
-    }
+        /* Top Bar: Princess Logo Header Only */
+        .header-container {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(90deg, #ff007f 0%, #33001a 100%);
+            border: 3px solid #ffffff;
+            border-radius: 8px;
+            padding: 10px 20px;
+            margin-bottom: 15px;
+            height: 110px;
+        }
+        .logo-box {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            border: 3px solid #ffffff;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-right: 20px;
+        }
+        .logo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .title-box h1 {
+            font-size: 38px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+        .title-box p {
+            font-size: 16px;
+            font-style: italic;
+            color: #ffb3d9;
+        }
 
-    header {
-      padding: 6px 10px;
-      text-align: center;
-      border-bottom: 1px solid #222;
-      position: relative;
-    }
+        /* Main Dashboard 3-Column Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 580px 480px 560px; /* Exact panel allocations */
+            gap: 15px;
+            flex-grow: 1;
+            height: calc(100% - 125px);
+        }
 
-    .title {
-      font-family: "Courier New", monospace;
-      font-weight: bold;
-      font-size: 15px;
-      color: #ff66cc;
-    }
+        /* Standardized Grid Card Containers */
+        .card {
+            background-color: #1f2833;
+            border: 2px solid #45f3ff;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
 
-    .subtitle {
-      font-size: 11px;
-      color: #aaa;
-    }
+        /* LEFT COLUMN: Map Container forced to exact 2:3 Dimension Ratio */
+        .map-card {
+            grid-row: span 2;
+            padding: 0; /* Flush edge to edge inside box */
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        .map-ratio-wrapper {
+            position: relative;
+            width: 100%;
+            /* 3:2 Aspect ratio math for container aspect setting (Height/Width * 100) = 150% height */
+            padding-top: 150%; 
+            overflow: hidden;
+            border-radius: 6px;
+        }
+        .map-ratio-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
 
-    .badge {
-      position: absolute;
-      right: 10px;
-      top: 6px;
-      font-size: 11px;
-      color: #ff66cc;
-    }
+        /* CENTER COLUMN: Split Row Panels */
+        .center-column {
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            gap: 15px;
+        }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 2.2fr 1fr;
-      gap: 8px;
-      padding: 8px;
-      height: calc(100vh - 60px);
-    }
+        /* RIGHT COLUMN: Split Row Panels */
+        .right-column {
+            display: grid;
+            grid-template-rows: auto auto 1fr;
+            gap: 15px;
+        }
 
-    .panel {
-      background: #111;
-      border: 1px solid #222;
-      border-radius: 10px;
-      padding: 10px;
-      overflow: hidden;
-    }
+        /* Typography & Custom Logic Styles for Dynamic Boxes */
+        .box-title {
+            font-size: 20px;
+            color: #45f3ff;
+            border-bottom: 1px solid #45f3ff;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
 
-    h2 {
-      margin: 0 0 6px 0;
-      font-size: 12px;
-      color: #ccc;
-    }
+        .data-text {
+            font-size: 16px;
+            line-height: 1.5;
+        }
 
-    /* RADAR */
-    .radarWrap {
-      position: relative;
-      height: 100%;
-      overflow: hidden;
-      border-radius: 8px;
-    }
+        /* Dynamic Weather Threshold Color Rules */
+        .temp-huge {
+            font-size: 54px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .color-hot { color: #ff3333; }       /* 90 or above = Red */
+        .color-warm { color: #ffa500; }      /* 80-89 = Orange */
+        .color-normal { color: #ffff00; }    /* 70-79 = Yellow */
+        .color-cool { color: #33ccff; }      /* Under 69 = Light Blue */
 
-    .radar {
-      width: 150%;
-      height: 150%;
-      object-fit: cover;
-      transform: translate(-18%, -12%);
-    }
+        /* Hurricane Status Indicator Classes */
+        .warn-clear { color: #ffffff; }
+        .warn-yellow { color: #ffff00; animation: blink 2s infinite; }
+        .warn-red { color: #ff3333; font-weight: bold; animation: pulse 1s infinite; }
 
-    .sweep {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(120deg,
-        transparent 40%,
-        rgba(0,255,255,0.12),
-        transparent 60%);
-      animation: sweep 2.8s linear infinite;
-      pointer-events: none;
-    }
+        /* Dynamic State Images Styling */
+        .weather-state-img {
+            width: 100%;
+            height: 80%;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #555;
+        }
 
-    @keyframes sweep {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
-    }
+        /* MSNBC News Area Placeholder */
+        .news-feed-container {
+            background-color: #121824;
+            border: 1px dashed #45f3ff;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            color: #8892b0;
+        }
 
-    /* LIGHTNING EFFECT (NO SOUND) */
-    @keyframes lightningFlash {
-      0% { filter: brightness(1); }
-      10% { filter: brightness(2.5) contrast(1.2); }
-      20% { filter: brightness(1); }
-      100% { filter: brightness(1); }
-    }
-
-    .lightning {
-      animation: lightningFlash 1.2s infinite;
-    }
-
-    .stack {
-      display: grid;
-      grid-template-rows: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .temp {
-      font-size: 28px;
-      margin: 0;
-    }
-
-    .meta {
-      font-size: 16px;
-      font-weight: bold;
-      margin-top: 4px;
-    }
-
-    .hot { color: #ff3b3b; }
-    .warm { color: #ff8c1a; }
-    .mild { color: #ffd84d; }
-    .cool { color: #66ccff; }
-
-  </style>
+        /* Subtle Animations for Warnings */
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.98); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+    </style>
 </head>
-
 <body>
 
-<header>
-  <img src="IMG_4728.png"
-     style="position:absolute;left:8px;top:6px;width:auto;height:130px;border-radius:6px;z-index:9999;pointer-events:none;">
-  <div class="title">PRINCESS WEATHER COMMAND CENTER</div>
-  <div class="subtitle">Visual Monitoring System • No Sound Mode</div>
-  <div class="badge">🐾 AI ACTIVE</div>
-</header>
-
-<div class="grid">
-
-  <!-- RADAR PANEL -->
-  <div class="panel" id="radarPanel">
-
-    <h2>South Florida Radar Focus</h2>
-
-    <div class="radarWrap">
-      <img class="radar"
-        src="https://radar.weather.gov/ridge/standard/SOUTHEAST_loop.gif">
-      <div class="sweep"></div>
+    <!-- Header Block: Princess Logo & Title (Old text removed per requested arrows) -->
+    <div class="header-container">
+        <div class="logo-box">
+            <!-- Points to your local asset photo -->
+            <img src="image.png" alt="Princess Logo">
+        </div>
+        <div class="title-box">
+            <h1>Princess's Weather Station</h1>
+            <p>She's there for you when the poop hits the fan!</p>
+        </div>
     </div>
 
-  </div>
+    <!-- Main Grid Application -->
+    <div class="dashboard-grid">
+        
+        <!-- 1. LEFT PANEL: Southeast FL Storm Radar (2:3 aspect container) -->
+        <div class="card map-card">
+            <div class="map-ratio-wrapper">
+                <!-- Live NWS Embedded Radar interactive feed tracking Broward County Area / 100mi out -->
+                <iframe src="https://radar.weather.gov/radar.php?rid=amx&base=reflectivity&loop=yes" scrolling="no"></iframe>
+            </div>
+        </div>
 
-  <!-- WEATHER STACK -->
-  <div class="stack">
+        <!-- CENTER PANELS -->
+        <div class="center-column">
+            <!-- 2. Hurricane Info Box -->
+            <!-- Note: Swap class to 'warn-yellow' or 'warn-red' programmatically if watch/warning triggers -->
+            <div class="card warn-clear">
+                <div class="box-title" style="color: inherit;">Hurricane Info Box</div>
+                <div class="data-text">
+                    <p>⏳ <strong>Season Countdown:</strong> 34 Days until Hurricane Season begins</p>
+                    <p>🌀 <strong>Active Storm Tracker:</strong> No Active Named Systems Tracked.</p>
+                    <p>⚠️ <strong>Local Status (33442):</strong> All Clear / Safe Condition</p>
+                </div>
+            </div>
 
-    <div class="panel">
-      <h2>Deerfield Beach</h2>
-      <div id="dfbTemp" class="temp">--</div>
-      <div id="dfbMeta" class="meta">Loading...</div>
-      <div id="dfbTime" class="meta"></div>
+            <!-- 3. Dynamic Weather Image Box (A, B, C, or D) -->
+            <div class="card">
+                <div class="box-title">Condition View</div>
+                <!-- Swap image source dynamically based on conditions (A=Good, B=Rain, C=Wind, D=Cold) -->
+                <img src="image_2.png" class="weather-state-img" alt="Current State Image Placement">
+            </div>
+        </div>
+
+        <!-- RIGHT PANELS -->
+        <div class="right-column">
+            <!-- 4. Deerfield Beach Weather Card -->
+            <div class="card">
+                <div class="box-title">Deerfield Beach, FL</div>
+                <div class="temp-huge color-warm">84.6°F</div>
+                <div class="data-text">
+                    <strong>Conditions:</strong> Scattered Clouds<br>
+                    <strong>Wind:</strong> 6.9 mph • Fort Lauderdale Region<br>
+                    <strong>Local Time (33442):</strong> 10:04 AM
+                </div>
+            </div>
+
+            <!-- 5. Anthem, Arizona Weather Card -->
+            <div class="card">
+                <div class="box-title">Anthem, Arizona</div>
+                <div class="temp-huge color-warm">80.2°F</div>
+                <div class="data-text">
+                    <strong>Conditions:</strong> Clear Sky<br>
+                    <strong>Wind:</strong> 7.7 mph • Maricopa Region<br>
+                    <strong>Local Time (85086):</strong> 7:04 AM
+                </div>
+            </div>
+
+            <!-- 6. MSNBC News Feed Box -->
+            <div class="card">
+                <div class="box-title">MSNBC News Information</div>
+                <div class="news-feed-container">
+                    <p>🔗 Feed Active Placeholder<br>MSNBC Live RSS Feed Headlines or Widget Integration Space</p>
+                </div>
+            </div>
+        </div>
+
     </div>
-
-    <div class="panel">
-      <h2>Anthem, Arizona</h2>
-      <div id="azTemp" class="temp">--</div>
-      <div id="azMeta" class="meta">Loading...</div>
-      <div id="azTime" class="meta"></div>
-    </div>
-
-  </div>
-
-</div>
-
-<script>
-
-/* ALERT SYSTEM (LIGHTNING TRIGGER) */
-async function loadAlerts() {
-
-  try {
-    let r = await fetch("https://api.weather.gov/alerts/active?area=FL");
-    let data = await r.json();
-
-    let alerts = data.features.length;
-
-    let radar = document.getElementById("radarPanel");
-
-    if (!radar) return;
-
-    if (alerts >= 1 && alerts <= 2) {
-      radar.classList.add("lightning");
-    }
-
-    else if (alerts >= 3 && alerts <= 4) {
-      radar.classList.add("lightning");
-    }
-
-    else if (alerts >= 5) {
-      radar.classList.add("lightning");
-    }
-
-    else {
-      radar.classList.remove("lightning");
-    }
-
-  } catch (e) {
-    // silent fail
-  }
-}
-
-/* WEATHER */
-async function loadWeather() {
-
-  // Deerfield Beach
-  let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current_weather=true&temperature_unit=fahrenheit");
-  let dfb = (await r1.json()).current_weather;
-
-  let dfbTempEl = document.getElementById("dfbTemp");
-  dfbTempEl.className = "temp " + tempClass(dfb.temperature);
-  dfbTempEl.innerHTML = dfb.temperature + "°F";
-
-  document.getElementById("dfbMeta").innerHTML =
-    "Wind: " + dfb.windspeed + " mph • Fort Lauderdale Region";
-
-  document.getElementById("dfbTime").innerHTML =
-    "Local time: " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-
-  // Anthem AZ
-  let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current_weather=true&temperature_unit=fahrenheit");
-  let az = (await r2.json()).current_weather;
-
-  let azTempEl = document.getElementById("azTemp");
-  azTempEl.className = "temp " + tempClass(az.temperature);
-  azTempEl.innerHTML = az.temperature + "°F";
-
-  document.getElementById("azMeta").innerHTML =
-    "Wind: " + az.windspeed + " mph • Arizona";
-
-  document.getElementById("azTime").innerHTML =
-    "Local time: " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-
-}
-
-/* TEMP COLOR LOGIC */
-function tempClass(t) {
-  if (t >= 90) return "hot";
-  if (t >= 80) return "warm";
-  if (t >= 70) return "mild";
-  return "cool";
-}
-
-/* RUN LOOPS */
-loadWeather();
-loadAlerts();
-
-setInterval(loadWeather, 300000);
-setInterval(loadAlerts, 300000);
-
-</script>
 
 </body>
 </html>
