@@ -3,19 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Princess Weather Command Center v2</title>
+<title>Weather Dashboard</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
 * {
-    box-sizing: border-box;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 body {
     background: #0b0c10;
     color: white;
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     height: 100vh;
     overflow: hidden;
 }
@@ -25,54 +27,34 @@ body {
     display: flex;
     align-items: center;
     padding: 10px;
-    background: linear-gradient(90deg,#ff007f,#111);
+    background: #111;
     border-bottom: 2px solid #45f3ff;
 }
 
-.logo {
-    width: 65px;
-    height: 65px;
+.header img {
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid white;
 }
 
-.logo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* GRID */
+/* MAIN GRID */
 .grid {
     display: grid;
-    grid-template-columns: 1.3fr 1fr;
-    height: calc(100vh - 85px);
+    grid-template-columns: 1.2fr 1fr;
+    height: calc(100vh - 80px);
 }
 
-/* LEFT MAP */
-.map {
-    padding: 10px;
-}
-
-.mapBox {
+/* MAP */
+#map {
     width: 100%;
     height: 100%;
-    border: 2px solid #333;
-    border-radius: 8px;
-    overflow: hidden;
 }
 
-.mapBox img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* RIGHT SIDE */
-.right {
+/* RIGHT 2x2 GRID */
+.rightGrid {
     display: grid;
-    grid-template-rows: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
     gap: 10px;
     padding: 10px;
 }
@@ -80,16 +62,20 @@ body {
 /* BOXES */
 .box {
     background: #1f2833;
-    border-radius: 8px;
     border: 1px solid #45f3ff;
+    border-radius: 8px;
     padding: 10px;
 }
 
-/* PRINCESS */
-.princess img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+/* PRINCESS FLOAT */
+#princess {
+    position: fixed;
+    top: 85px;
+    right: 15px;
+    height: 150px;
+    width: auto;
+    z-index: 9999;
+    pointer-events: none;
 }
 
 /* TEMP COLORS */
@@ -98,89 +84,48 @@ body {
 .mid { color: #ffd84d; }
 .cool { color: #66ccff; }
 
-.bigTemp {
-    font-size: 30px;
-    font-weight: bold;
-}
-
-/* HURRICANE STATES */
-.safe { border-color: #45f3ff; }
-.watch { border-color: #ffd84d; }
-.warning { border-color: #ff3b3b; animation: pulse 1.5s infinite; }
-
-/* EMERGENCY PULSE */
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.6; }
-    100% { opacity: 1; }
-}
-
-/* LIGHTNING OVERLAY */
-.flash {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: white;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 999;
-}
+.bigTemp { font-size: 28px; font-weight: bold; }
 </style>
 </head>
 
 <body>
 
-<div class="flash" id="flash"></div>
+<!-- PRINCESS FOREGROUND -->
+<img id="princess" src="IMG_4728.png">
 
 <!-- HEADER -->
 <div class="header">
-    <div class="logo">
-        <img src="IMG_4728.png">
-    </div>
-    <div style="margin-left:10px;">
-        <h2>Princess Weather Command Center v2</h2>
-        <small>NO SOUND • LIVE SYSTEM • EMERGENCY READY</small>
-    </div>
+    <img src="IMG_4728.png">
+    <h3 style="margin-left:10px;">Weather Dashboard</h3>
 </div>
 
 <!-- GRID -->
 <div class="grid">
 
-    <!-- LEFT MAP -->
-    <div class="map">
-        <div class="mapBox">
-            <img src="https://radar.weather.gov/ridge/standard/SOUTHEAST_loop.gif">
-        </div>
-    </div>
+    <!-- LEAFLET MAP -->
+    <div id="map"></div>
 
-    <!-- RIGHT -->
-    <div class="right">
+    <!-- RIGHT SIDE -->
+    <div class="rightGrid">
 
-        <!-- HURRICANE -->
-        <div class="box safe" id="hurricaneBox">
-            <b>Hurricane Intelligence</b><br>
-            Season: Active<br>
-            Storms: Monitoring<br>
-            Status: Normal
-        </div>
-
-        <!-- PRINCESS -->
-        <div class="box princess">
-            <img id="princessMood" src="princess_sunny.gif">
-        </div>
-
-        <!-- DEERFIELD -->
         <div class="box">
-            <b>Deerfield Beach</b><br>
+            <b>Princess AI</b><br>
+            Visual Weather Response System
+        </div>
+
+        <div class="box">
+            <b>Deerfield Beach</b>
             <div id="dfbTemp" class="bigTemp">--</div>
             <div id="dfbTime"></div>
         </div>
 
-        <!-- ANTHEM -->
         <div class="box">
-            <b>Anthem, AZ</b><br>
+            <b>Hurricane Status</b><br>
+            Monitoring Atlantic Basin
+        </div>
+
+        <div class="box">
+            <b>Anthem AZ</b>
             <div id="azTemp" class="bigTemp">--</div>
             <div id="azTime"></div>
         </div>
@@ -189,8 +134,18 @@ body {
 
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 
+// MAP (BROWARD FOCUS)
+var map = L.map('map').setView([26.1224, -80.1373], 9);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18
+}).addTo(map);
+
+// WEATHER
 function tempClass(t){
     if(t>=90)return "hot";
     if(t>=80)return "warm";
@@ -198,42 +153,24 @@ function tempClass(t){
     return "cool";
 }
 
-function princess(temp, condition){
-    let img=document.getElementById("princessMood");
-
-    if(condition?.includes("Rain")) img.src="princess_rain.gif";
-    else if(condition?.includes("Thunder")) img.src="princess_storm.gif";
-    else if(temp>=90) img.src="princess_hot.gif";
-    else img.src="princess_sunny.gif";
-
-    // LIGHTNING FLASH (emergency visual)
-    if(temp>=90 || condition?.includes("Thunder")){
-        let f=document.getElementById("flash");
-        f.style.opacity=0.25;
-        setTimeout(()=>f.style.opacity=0,200);
-    }
-}
-
 async function load(){
 
-let r1=await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current_weather=true&temperature_unit=fahrenheit");
-let dfb=(await r1.json()).current_weather;
+let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current_weather=true&temperature_unit=fahrenheit");
+let dfb = (await r1.json()).current_weather;
 
-document.getElementById("dfbTemp").className="bigTemp "+tempClass(dfb.temperature);
-document.getElementById("dfbTemp").innerHTML=dfb.temperature+"°F";
+document.getElementById("dfbTemp").className = "bigTemp " + tempClass(dfb.temperature);
+document.getElementById("dfbTemp").innerHTML = dfb.temperature + "°F";
 
-document.getElementById("dfbTime").innerHTML=
+document.getElementById("dfbTime").innerHTML =
 new Date().toLocaleTimeString("en-US",{timeZone:"America/New_York",hour:"2-digit",minute:"2-digit"});
 
-princess(dfb.temperature,"");
+let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current_weather=true&temperature_unit=fahrenheit");
+let az = (await r2.json()).current_weather;
 
-let r2=await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current_weather=true&temperature_unit=fahrenheit");
-let az=(await r2.json()).current_weather;
+document.getElementById("azTemp").className = "bigTemp " + tempClass(az.temperature);
+document.getElementById("azTemp").innerHTML = az.temperature + "°F";
 
-document.getElementById("azTemp").className="bigTemp "+tempClass(az.temperature);
-document.getElementById("azTemp").innerHTML=az.temperature+"°F";
-
-document.getElementById("azTime").innerHTML=
+document.getElementById("azTime").innerHTML =
 new Date().toLocaleTimeString("en-US",{timeZone:"America/Phoenix",hour:"2-digit",minute:"2-digit"});
 
 }
