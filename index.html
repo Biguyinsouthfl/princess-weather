@@ -154,6 +154,11 @@ body {
 // MAP (BROWARD FOCUS)
 var map = L.map('map').setView([26.1224, -80.1373], 9);
 
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+    
 L.tileLayer('https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY', {
     opacity: 0.6
 }).addTo(map);
