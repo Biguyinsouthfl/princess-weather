@@ -5,62 +5,43 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Weather Dashboard</title>
 
-
 <style>
 
-    #princess {
-    position: fixed;
-    top: 2px;
-    left: 2px;
-    height: 120px;
-    width: auto;
-    z-index: 99999;
-    pointer-events: none;
-}
-    
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+/* FULL BLACK BACKGROUND */
 body {
-    background: #000000;
+    margin: 0;
+    background: #000;
     color: white;
-    font-family: Arial;
+    font-family: Arial, sans-serif;
     height: 100vh;
     overflow: hidden;
 }
 
-/* HEADER */
-.header {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    background: #111;
-    border-bottom: 2px solid #45f3ff;
-}
-
-.header img {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+/* FLOATING PRINCESS */
+#princess {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    height: 120px;
+    width: auto;
+    z-index: 99999;
+    pointer-events: none;
 }
 
 /* MAIN GRID */
 .grid {
     display: grid;
     grid-template-columns: 1.2fr 1fr;
-    height: calc(100vh - 80px);
+    height: 100vh;
 }
 
-/* MAP */
-#map {
+/* LEFT MAP */
+.mapBox {
     width: 100%;
     height: 100%;
 }
 
-/* RIGHT 2x2 GRID */
+/* RIGHT GRID */
 .rightGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -75,66 +56,62 @@ body {
     border: 1px solid #45f3ff;
     border-radius: 8px;
     padding: 10px;
-}
-}
-
-/* PRINCESS FLOAT */
-#princess {
-    position: fixed;
-    top: 85px;
-    right: 15px;
-    height: 150px;
-    width: auto;
-    z-index: 9999;
-    pointer-events: none;
+    overflow: hidden;
 }
 
-/* TEMP COLORS */
+/* TEMPERATURE COLORS */
 .hot { color: #ff3b3b; }
 .warm { color: #ff8c1a; }
 .mid { color: #ffd84d; }
 .cool { color: #66ccff; }
 
-.bigTemp { font-size: 28px; font-weight: bold; }
+.bigTemp {
+    font-size: 28px;
+    font-weight: bold;
+}
+
 </style>
 </head>
 
 <body>
 
 <!-- PRINCESS FOREGROUND -->
-
 <img id="princess" src="IMG_4728.png">
-    
-<!-- HEADER -->
 
-<!-- GRID -->
 <div class="grid">
 
-    <!-- LIVE WEATHER MAP -->
-<iframe
-    src="https://zoom.earth/maps/precipitation/#view=26.15,-80.15,8z"
-    style="width:100%;height:100%;border:none;">
-</iframe>
-    
+    <!-- LEFT WEATHER MAP (ZOOM EARTH) -->
+    <div class="mapBox">
+        <iframe
+            src="https://zoom.earth/maps/precipitation/#view=26.15,-80.15,8z"
+            style="width:100%;height:100%;border:none;">
+        </iframe>
+    </div>
+
     <!-- RIGHT SIDE -->
     <div class="rightGrid">
 
+        <!-- PRINCESS MOOD -->
         <div class="box">
-    <img id="princessMood"
-         src="princess_sunny.gif"
-         style="width:100%;height:100%;object-fit:contain;">
-</div>
+            <img id="princessMood"
+                 src="princess_sunny.gif"
+                 style="width:100%;height:100%;object-fit:contain;">
+        </div>
+
+        <!-- DEERFIELD -->
         <div class="box">
             <b>Deerfield Beach</b>
             <div id="dfbTemp" class="bigTemp">--</div>
             <div id="dfbTime"></div>
         </div>
 
+        <!-- HURRICANE -->
         <div class="box">
             <b>Hurricane Status</b><br>
             Monitoring Atlantic Basin
         </div>
 
+        <!-- ARIZONA -->
         <div class="box">
             <b>Anthem AZ</b>
             <div id="azTemp" class="bigTemp">--</div>
@@ -145,17 +122,8 @@ body {
 
 </div>
 
-
-
 <script>
 
-// =======================
-// MAP (CLEAN + SAFE)
-// =======================
-var rainLayer = L.tileLayer
-// =======================
-// WEATHER HELPERS
-// =======================
 function tempClass(t){
     if(t >= 90) return "hot";
     if(t >= 80) return "warm";
@@ -163,13 +131,9 @@ function tempClass(t){
     return "cool";
 }
 
-
-// =======================
-// MAIN UPDATE LOOP
-// =======================
 async function load(){
 
-    // Deerfield Beach
+    // DEERFIELD BEACH
     let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current_weather=true&temperature_unit=fahrenheit");
     let dfb = (await r1.json()).current_weather;
 
@@ -177,29 +141,22 @@ async function load(){
     document.getElementById("dfbTemp").innerHTML = dfb.temperature + "°F";
 
     document.getElementById("dfbTime").innerHTML =
-        new Date().toLocaleTimeString("en-US",{
-            timeZone:"America/New_York",
-            hour:"2-digit",
-            minute:"2-digit"
+        new Date().toLocaleTimeString("en-US", {
+            timeZone: "America/New_York",
+            hour: "2-digit",
+            minute: "2-digit"
         });
 
-    // Princess mood system
+    // PRINCESS MOOD
     let mood = "princess_sunny.gif";
 
-    if (dfb.temperature >= 90) {
-        mood = "princess_hot.gif";
-    }
-    else if (dfb.weathercode >= 95) {
-        mood = "princess_storm.gif";
-    }
-    else if (dfb.weathercode >= 51 && dfb.weathercode <= 67) {
-        mood = "princess_rain.gif";
-    }
+    if (dfb.temperature >= 90) mood = "princess_hot.gif";
+    else if (dfb.weathercode >= 95) mood = "princess_storm.gif";
+    else if (dfb.weathercode >= 51 && dfb.weathercode <= 67) mood = "princess_rain.gif";
 
     document.getElementById("princessMood").src = mood;
 
-
-    // Anthem AZ
+    // ARIZONA
     let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current_weather=true&temperature_unit=fahrenheit");
     let az = (await r2.json()).current_weather;
 
@@ -207,18 +164,15 @@ async function load(){
     document.getElementById("azTemp").innerHTML = az.temperature + "°F";
 
     document.getElementById("azTime").innerHTML =
-        new Date().toLocaleTimeString("en-US",{
-            timeZone:"America/Phoenix",
-            hour:"2-digit",
-            minute:"2-digit"
+        new Date().toLocaleTimeString("en-US", {
+            timeZone: "America/Phoenix",
+            hour: "2-digit",
+            minute: "2-digit"
         });
 
 }
 
-
-// =======================
-// START (ONLY ONCE)
-// =======================
+// START
 load();
 setInterval(load, 300000);
 
