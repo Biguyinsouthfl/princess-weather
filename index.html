@@ -155,6 +155,15 @@ body {
 // MAP (SAFE MODE - DO NOT EDIT ANYTHING BELOW THIS LINE)
 var map = L.map('map').setView([26.3184, -80.0998], 10);
 
+    var rainLayer = L.tileLayer(
+  'https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/radar/{z}/{x}/{y}.png',
+  {
+    opacity: 0.6
+  }
+);
+
+rainLayer.addTo(map);
+    
 // Base map (roads only)
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
