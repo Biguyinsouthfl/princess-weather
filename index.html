@@ -167,6 +167,13 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
+    var rainLayer = L.tileLayer(
+  'https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=a75cfc8d9f615dd968dd3ef0cbf2f475',
+  {
+    opacity: 0.5
+  }
+).addTo(map);
+
 // WEATHER
 function tempClass(t){
     if(t>=90)return "hot";
