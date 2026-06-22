@@ -11,7 +11,7 @@ body {
     margin: 0;
     background: #000;
     color: white;
-    font-family: Arial;
+    font-family: Arial, sans-serif;
     height: 100vh;
     overflow: hidden;
 }
@@ -48,6 +48,8 @@ body {
     grid-template-rows: 1fr 1fr;
     gap: 10px;
     padding: 10px;
+    box-sizing: border-box; /* Prevents layout cutoff */
+    height: 100%;
 }
 
 /* BOXES */
@@ -55,8 +57,17 @@ body {
     background: #050505;
     border: 1px solid #45f3ff;
     border-radius: 8px;
-    padding: 10px;
+    padding: 15px;
     overflow: hidden;
+    font-size: 24px; /* Doubled base text size for labels like "Hurricane Status" */
+    line-height: 1.3;
+}
+
+/* CITY NAMES */
+.cityName {
+    font-size: 26px;
+    display: block;
+    margin-bottom: 2px;
 }
 
 /* TEMP COLORS */
@@ -65,9 +76,33 @@ body {
 .mid { color: #ffd84d; }
 .cool { color: #66ccff; }
 
+/* TEMPERATURE NUMBERS (Kept at original requested scale) */
 .bigTemp {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: bold;
+}
+
+/* SYSTEM CLOCK DISPLAY */
+.timeDisplay {
+    font-size: 24px; /* Doubled clock size */
+    color: #e0e0e0;
+    margin-top: 2px;
+}
+
+/* WEATHER DETAILS LINES */
+.weatherDetails {
+    font-size: 20px; /* Greatly enlarged for across-the-room scannability */
+    color: #b0b0b0;
+    margin-top: 8px;
+    line-height: 1.4;
+}
+
+/* HURRICANE SUBTEXT */
+.hurricaneText {
+    font-size: 22px;
+    color: #ff8c1a;
+    margin-top: 10px;
+    display: block;
 }
 
 </style>
@@ -79,7 +114,7 @@ body {
 
 <div class="grid">
 
-    <!-- LEFT SIDE: Fixed to properly close the tag around the radar embed -->
+    <!-- LEFT SIDE: Radar Embed -->
     <div class="mapBox">
         <iframe 
             src="https://embed.windy.com/embed2.html?lat=26.3184&lon=-80.0998&zoom=9&level=surface&overlay=radar&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=%C2%B0F&radarRange=-1" 
@@ -92,26 +127,34 @@ body {
     <!-- RIGHT SIDE -->
     <div class="rightGrid">
 
-        <div class="box">
+        <div class="box" style="display: flex; align-items: center; justify-content: center;">
             <img id="princessMood" src="princess_sunny.gif"
                  style="width:100%;height:100%;object-fit:contain;">
         </div>
 
         <div class="box">
-            <b>Deerfield Beach</b>
+            <b class="cityName">Deerfield Beach</b>
             <div id="dfbTemp" class="bigTemp">--</div>
-            <div id="dfbTime"></div>
+            <div id="dfbTime" class="timeDisplay"></div>
+            <div class="weatherDetails">
+                <div id="dfbHumidity">Humidity: --</div>
+                <div id="dfbWind">Wind: --</div>
+            </div>
         </div>
 
         <div class="box">
-            <b>Hurricane Status</b><br>
-            Monitoring Atlantic Basin
+            <b>Hurricane Status</b>
+            <span class="hurricaneText">Monitoring Atlantic Basin</span>
         </div>
 
         <div class="box">
-            <b>Anthem AZ</b>
+            <b class="cityName">Anthem AZ</b>
             <div id="azTemp" class="bigTemp">--</div>
-            <div id="azTime"></div>
+            <div id="azTime" class="timeDisplay"></div>
+            <div class="weatherDetails">
+                <div id="azHumidity">Humidity: --</div>
+                <div id="azWind">Wind: --</div>
+            </div>
         </div>
 
     </div>
@@ -127,10 +170,19 @@ function tempClass(t){
     return "cool";
 }
 
+function getWindDirection(deg) {
+    const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+    const index = Math.round(((deg % 360) / 45)) % 8;
+    return directions[index];
+}
+
 async function load(){
 
-    let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current_weather=true&temperature_unit=fahrenheit");
-    let dfb = (await r1.json()).current_weather;
+    // 1. DEERFIELD BEACH FETCH
+    let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&current=relative_humidity_2m");
+    let res1 = await r1.json();
+    let dfb = res1.current_weather;
+    let dfbCurrent = res1.current;
 
     document.getElementById("dfbTemp").className = "bigTemp " + tempClass(dfb.temperature);
     document.getElementById("dfbTemp").innerHTML = dfb.temperature + "°F";
@@ -142,16 +194,26 @@ async function load(){
             minute: "2-digit"
         });
 
-    let mood = "princess_sunny.gif";
+    if(dfbCurrent && dfbCurrent.relative_humidity_2m) {
+        document.getElementById("dfbHumidity").innerHTML = "Humidity: " + dfbCurrent.relative_humidity_2m + "%";
+    }
+    document.getElementById("dfbWind").innerHTML = "Wind: " + Math.round(dfb.windspeed) + " mph " + getWindDirection(dfb.winddirection);
 
+
+    // PRINCESS MOOD LOGIC
+    let mood = "princess_sunny.gif";
     if (dfb.temperature >= 90) mood = "princess_hot.gif";
     else if (dfb.weathercode >= 95) mood = "princess_storm.gif";
     else if (dfb.weathercode >= 51 && dfb.weathercode <= 67) mood = "princess_rain.gif";
 
     document.getElementById("princessMood").src = mood;
 
-    let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current_weather=true&temperature_unit=fahrenheit");
-    let az = (await r2.json()).current_weather;
+
+    // 2. ANTHEM AZ FETCH
+    let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&current=relative_humidity_2m");
+    let res2 = await r2.json();
+    let az = res2.current_weather;
+    let azCurrent = res2.current;
 
     document.getElementById("azTemp").className = "bigTemp " + tempClass(az.temperature);
     document.getElementById("azTemp").innerHTML = az.temperature + "°F";
@@ -162,6 +224,11 @@ async function load(){
             hour: "2-digit",
             minute: "2-digit"
         });
+
+    if(azCurrent && azCurrent.relative_humidity_2m) {
+        document.getElementById("azHumidity").innerHTML = "Humidity: " + azCurrent.relative_humidity_2m + "%";
+    }
+    document.getElementById("azWind").innerHTML = "Wind: " + Math.round(az.windspeed) + " mph " + getWindDirection(az.winddirection);
 }
 
 load();
