@@ -153,47 +153,6 @@ function tempClass(t){
     return "cool";
 }
 
-async function load(){
-
-let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current_weather=true&temperature_unit=fahrenheit");
-let dfb = (await r1.json()).current_weather;
-
-document.getElementById("dfbTemp").className = "bigTemp " + tempClass(dfb.temperature);
-document.getElementById("dfbTemp").innerHTML = dfb.temperature + "°F";
-
-document.getElementById("dfbTime").innerHTML =
-new Date().toLocaleTimeString("en-US",{timeZone:"America/New_York",hour:"2-digit",minute:"2-digit"});
-
-let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current_weather=true&temperature_unit=fahrenheit");
-let az = (await r2.json()).current_weather;
-
-document.getElementById("azTemp").className = "bigTemp " + tempClass(az.temperature);
-document.getElementById("azTemp").innerHTML = az.temperature + "°F";
-
-document.getElementById("azTime").innerHTML =
-new Date().toLocaleTimeString("en-US",{timeZone:"America/Phoenix",hour:"2-digit",minute:"2-digit"});
-
-}
-
-let mood = "princess_sunny.gif";
-
-if(dfb.temperature >= 90)
-{
-    mood = "princess_hot.gif";
-}
-else if(dfb.weathercode >= 95)
-{
-    mood = "princess_storm.gif";
-}
-else if(
-    dfb.weathercode >= 51 &&
-    dfb.weathercode <= 67
-)
-{
-    mood = "princess_rain.gif";
-}
-
-document.getElementById("princessMood").src = mood;
     
 load();
 setInterval(load,300000);
