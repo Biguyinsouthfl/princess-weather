@@ -159,18 +159,12 @@ var map = L.map('map').setView([26.1224, -80.1373], 9);
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-    var rainLayer = L.tileLayer(
-  'https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=a75cfc8d9f615dd968dd3ef0cbf2f475
-  {
-    opacity: 0.5
-  }
-);
+    var map = L.map('map').setView([26.3184, -80.0998], 10);
 
-rainLayer.addTo(map);
-    
+// BASE MAP (roads - MUST ALWAYS EXIST)
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18
-}).addTo(map);
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
 // WEATHER
