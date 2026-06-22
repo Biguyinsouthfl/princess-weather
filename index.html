@@ -157,21 +157,7 @@ body {
 // =======================
 // MAP (CLEAN + SAFE)
 // =======================
-var map = L.map('map').setView([26.3184, -80.0998], 10);
-
-// Base map (roads)
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18,
-    attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
-
-// SINGLE RAIN LAYER (ONLY ONE)
-var rainLayer = L.tileLayer(
-  'https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/n0q/{z}/{y}/{x}.png',
-  {
-    opacity: 0.6
-  }
-).addTo(map);
+var rainLayer = L.tileLayer
 // =======================
 // WEATHER HELPERS
 // =======================
