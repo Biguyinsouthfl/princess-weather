@@ -175,6 +175,26 @@ new Date().toLocaleTimeString("en-US",{timeZone:"America/Phoenix",hour:"2-digit"
 
 }
 
+let mood = "princess_sunny.gif";
+
+if(dfb.temperature >= 90)
+{
+    mood = "princess_hot.gif";
+}
+else if(dfb.weathercode >= 95)
+{
+    mood = "princess_storm.gif";
+}
+else if(
+    dfb.weathercode >= 51 &&
+    dfb.weathercode <= 67
+)
+{
+    mood = "princess_rain.gif";
+}
+
+document.getElementById("princessMood").src = mood;
+    
 load();
 setInterval(load,300000);
 
