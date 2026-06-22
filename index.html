@@ -164,12 +164,11 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // SINGLE RAIN LAYER (ONLY ONE)
 var rainLayer = L.tileLayer(
-  'https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=a75cfc8d9f615dd968dd3ef0cbf2f475',
+  'https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/ridge_nexrad/{z}/{x}/{y}.png',
   {
-    opacity: 0.5
+    opacity: 0.6
   }
 ).addTo(map);
-
 
 // =======================
 // WEATHER HELPERS
