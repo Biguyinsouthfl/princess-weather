@@ -8,6 +8,17 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
+
+    #princess {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    height: 150px;
+    width: auto;
+    z-index: 99999;
+    pointer-events: none;
+}
+    
 * {
     margin: 0;
     padding: 0;
@@ -92,7 +103,8 @@ body {
 
 <!-- PRINCESS FOREGROUND -->
 
-
+<img id="princess" src="IMG_4728.png">
+    
 <!-- HEADER -->
 <div class="header">
     <img src="IMG_4728.png">
