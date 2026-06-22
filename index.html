@@ -168,8 +168,9 @@ var map = L.map('map').setView([26.1224, -80.1373], 9);
 
 rainLayer.addTo(map);
     
-L.tileLayer('https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY', {
-    opacity: 0.6
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18
+}).addTo(map);
 }).addTo(map);
 
 // WEATHER
