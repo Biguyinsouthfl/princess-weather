@@ -7,17 +7,16 @@
 
 <style>
 
-/* FULL BLACK BACKGROUND */
 body {
     margin: 0;
     background: #000;
     color: white;
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     height: 100vh;
     overflow: hidden;
 }
 
-/* FLOATING PRINCESS */
+/* PRINCESS MAIN */
 #princess {
     position: fixed;
     top: 10px;
@@ -28,15 +27,16 @@ body {
     pointer-events: none;
 }
 
-/* MAIN GRID */
+/* GRID */
 .grid {
     display: grid;
     grid-template-columns: 1.2fr 1fr;
     height: 100vh;
 }
 
-/* LEFT MAP */
+/* LEFT WHITE BOX (MAP PLACEHOLDER) */
 .mapBox {
+    background: #ffffff;
     width: 100%;
     height: 100%;
 }
@@ -59,7 +59,7 @@ body {
     overflow: hidden;
 }
 
-/* TEMPERATURE COLORS */
+/* TEMP COLORS */
 .hot { color: #ff3b3b; }
 .warm { color: #ff8c1a; }
 .mid { color: #ffd84d; }
@@ -75,43 +75,32 @@ body {
 
 <body>
 
-<!-- PRINCESS FOREGROUND -->
 <img id="princess" src="IMG_4728.png">
 
 <div class="grid">
 
-    <!-- LEFT WEATHER MAP (ZOOM EARTH) -->
-    <div class="mapBox">
-        <iframe
-            src="https://zoom.earth/maps/precipitation/#view=26.15,-80.15,8z"
-            style="width:100%;height:100%;border:none;">
-        </iframe>
-    </div>
+    <!-- LEFT SIDE -->
+    <div class="mapBox"></div>
 
     <!-- RIGHT SIDE -->
     <div class="rightGrid">
 
-        <!-- PRINCESS MOOD -->
         <div class="box">
-            <img id="princessMood"
-                 src="princess_sunny.gif"
+            <img id="princessMood" src="princess_sunny.gif"
                  style="width:100%;height:100%;object-fit:contain;">
         </div>
 
-        <!-- DEERFIELD -->
         <div class="box">
             <b>Deerfield Beach</b>
             <div id="dfbTemp" class="bigTemp">--</div>
             <div id="dfbTime"></div>
         </div>
 
-        <!-- HURRICANE -->
         <div class="box">
             <b>Hurricane Status</b><br>
             Monitoring Atlantic Basin
         </div>
 
-        <!-- ARIZONA -->
         <div class="box">
             <b>Anthem AZ</b>
             <div id="azTemp" class="bigTemp">--</div>
@@ -133,7 +122,6 @@ function tempClass(t){
 
 async function load(){
 
-    // DEERFIELD BEACH
     let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current_weather=true&temperature_unit=fahrenheit");
     let dfb = (await r1.json()).current_weather;
 
@@ -147,7 +135,6 @@ async function load(){
             minute: "2-digit"
         });
 
-    // PRINCESS MOOD
     let mood = "princess_sunny.gif";
 
     if (dfb.temperature >= 90) mood = "princess_hot.gif";
@@ -156,7 +143,6 @@ async function load(){
 
     document.getElementById("princessMood").src = mood;
 
-    // ARIZONA
     let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current_weather=true&temperature_unit=fahrenheit");
     let az = (await r2.json()).current_weather;
 
@@ -169,10 +155,8 @@ async function load(){
             hour: "2-digit",
             minute: "2-digit"
         });
-
 }
 
-// START
 load();
 setInterval(load, 300000);
 
