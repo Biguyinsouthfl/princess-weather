@@ -16,120 +16,112 @@ body {
     overflow: hidden;
 }
 
-/* PRINCESS MAIN */
+/* PRINCESS LOGO BANNER (Top Left overlay) */
 #princess {
     position: fixed;
     top: 10px;
     left: 10px;
-    height: 120px;
+    height: 100px;
     width: auto;
     z-index: 99999;
     pointer-events: none;
 }
 
-/* GRID */
+/* MASTER GRID (3 Columns to match the sketch) */
 .grid {
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
+    grid-template-columns: 1.2fr 1fr 1fr;
     height: 100vh;
-}
-
-/* LEFT RADAR CONTAINER */
-.mapBox {
-    background: #ffffff;
-    width: 100%;
-    height: 100%;
-}
-
-/* RIGHT GRID (Modified for dynamic tile row sizes) */
-.rightGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1.1fr 1fr 1.5fr; /* Created a larger bottom row for the beach video */
     gap: 10px;
     padding: 10px;
     box-sizing: border-box;
+}
+
+/* INNER COLUMN BOXES */
+.centerColumn, .rightColumn {
+    display: grid;
+    gap: 10px;
     height: 100%;
 }
 
-/* BOXES */
+.centerColumn {
+    grid-template-rows: 1.5fr 1fr 1.5fr;
+}
+
+.rightColumn {
+    grid-template-rows: 2.5fr 1.5fr; /* Tops rows for weather info, bottom row for AZ camera */
+}
+
+/* 2x2 MINI GRID FOR WEATHER DATA */
+.weatherMiniGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
+}
+
+/* STANDARD TILES */
 .box {
     background: #050505;
     border: 1px solid #45f3ff;
     border-radius: 8px;
-    padding: 15px;
+    padding: 12px;
     overflow: hidden;
-    font-size: 24px;
+    font-size: 20px;
     line-height: 1.3;
+    box-sizing: border-box;
 }
 
-/* FULL WIDTH ROW SECTIONS */
-.fullWidthBox {
-    grid-column: span 2;
+/* FULL EDGE-TO-EDGE LEFT SIDE RADAR */
+.mapBox {
+    background: #ffffff;
+    border: 1px solid #45f3ff;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 100%;
 }
 
-/* CITY NAMES */
+/* TYPOGRAPHY SCALING FOR DYNAMIC READS */
 .cityName {
-    font-size: 26px;
+    font-size: 22px;
     display: block;
     margin-bottom: 2px;
 }
 
-/* TEMP COLORS */
+.bigTemp {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.timeDisplay {
+    font-size: 18px;
+    color: #e0e0e0;
+}
+
+.weatherDetails {
+    font-size: 16px;
+    color: #b0b0b0;
+    margin-top: 4px;
+}
+
+/* HURRICANE BANNER DESIGN */
+.hurricaneCountdown {
+    font-size: 18px;
+    color: #b0b0b0;
+}
+.hurricaneStatusText {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+/* STATUS HIGHLIGHT COLORS */
 .hot { color: #ff3b3b; }
 .warm { color: #ff8c1a; }
 .mid { color: #ffd84d; }
 .cool { color: #66ccff; }
-
-/* TEMPERATURE NUMBERS */
-.bigTemp {
-    font-size: 32px;
-    font-weight: bold;
-}
-
-/* SYSTEM CLOCK DISPLAY */
-.timeDisplay {
-    font-size: 24px;
-    color: #e0e0e0;
-    margin-top: 2px;
-}
-
-/* WEATHER DETAILS LINES */
-.weatherDetails {
-    font-size: 20px;
-    color: #b0b0b0;
-    margin-top: 8px;
-    line-height: 1.4;
-}
-
-/* HURRICANE SUBTEXT */
-.hurricaneCountdown {
-    font-size: 18px;
-    color: #b0b0b0;
-    margin-top: 2px;
-    display: block;
-}
-
-.hurricaneStatusText {
-    font-size: 22px;
-    margin-top: 8px;
-    font-weight: bold;
-}
-
-/* Status colors */
 .noStorms { color: #00ff66; }
 .activeStorm { color: #ff3b3b; }
-
-/* DUAL CITY BOX FLEX */
-.dualCityLayout {
-    display: flex;
-    justify-content: space-between;
-    height: 100%;
-    box-sizing: border-box;
-}
-.cityColumn {
-    width: 48%;
-}
 
 </style>
 </head>
@@ -140,7 +132,6 @@ body {
 
 <div class="grid">
 
-    <!-- LEFT SIDE: Radar Embed -->
     <div class="mapBox">
         <iframe 
             src="https://embed.windy.com/embed2.html?lat=26.3184&lon=-80.0998&zoom=9&level=surface&overlay=radar&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=%C2%B0F&radarRange=-1" 
@@ -150,52 +141,19 @@ body {
         </iframe>
     </div>
 
-    <!-- RIGHT SIDE -->
-    <div class="rightGrid">
-
-        <!-- ROW 1, LEFT: Princess Mood -->
+    <div class="centerColumn">
         <div class="box" style="display: flex; align-items: center; justify-content: center;">
             <img id="princessMood" src="princess_sunny.gif"
                  style="width:100%;height:100%;object-fit:contain;">
         </div>
 
-        <!-- ROW 1, RIGHT: Hurricane Status Box -->
-        <div class="box">
-            <b>Hurricane Basin</b>
-            <div id="caneCountdown" class="hurricaneCountdown">Calculating season...</div>
-            <div id="caneStatus" class="hurricaneStatusText noStorms">Checking NHC Feed...</div>
+        <div class="box" style="display: flex; flex-direction: column; justify-content: center;">
+            <b>Hurricane Center</b>
+            <div id="caneCountdown" class="hurricaneCountdown">Calculating...</div>
+            <div id="caneStatus" class="hurricaneStatusText noStorms">Checking Feed...</div>
         </div>
 
-        <!-- ROW 2: Combined Dual Weather Station Box (Full Width across row) -->
-        <div class="box fullWidthBox">
-            <div class="dualCityLayout">
-                <!-- Left half: Deerfield Beach -->
-                <div class="cityColumn" style="border-right: 1px dashed #45f3ff; padding-right: 10px;">
-                    <b class="cityName">Deerfield Beach</b>
-                    <div id="dfbTemp" class="bigTemp">--</div>
-                    <div id="dfbTime" class="timeDisplay"></div>
-                    <div class="weatherDetails">
-                        <div id="dfbHumidity">Humidity: --</div>
-                        <div id="dfbWind">Wind: --</div>
-                    </div>
-                </div>
-                
-                <!-- Right half: Anthem Arizona -->
-                <div class="cityColumn" style="padding-left: 15px;">
-                    <b class="cityName">Anthem AZ</b>
-                    <div id="azTemp" class="bigTemp">--</div>
-                    <div id="azTime" class="timeDisplay"></div>
-                    <div class="weatherDetails">
-                        <div id="azHumidity">Humidity: --</div>
-                        <div id="azWind">Wind: --</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ROW 3: Live Deerfield Beach Camera Feed (Full Width at bottom) -->
-        <div class="box fullWidthBox" style="padding: 0; background: #000;">
-            <!-- Converted watch URL to an optimized, borderless autoplaying iframe element -->
+        <div class="box" style="padding: 0; background: #000;">
             <iframe 
                 width="100%" 
                 height="100%" 
@@ -206,7 +164,64 @@ body {
                 allowfullscreen>
             </iframe>
         </div>
+    </div>
 
+    <div class="rightColumn">
+        <div class="weatherMiniGrid">
+            
+            <div class="box">
+                <b class="cityName">Deerfield</b>
+                <div id="dfbTemp" class="bigTemp">--</div>
+                <div id="dfbTime" class="timeDisplay"></div>
+                <div class="weatherDetails">
+                    <div id="dfbHumidity">H: --</div>
+                    <div id="dfbWind">W: --</div>
+                </div>
+            </div>
+
+            <div class="box">
+                <b class="cityName">Anthem AZ</b>
+                <div id="azTemp" class="bigTemp">--</div>
+                <div id="azTime" class="timeDisplay"></div>
+                <div class="weatherDetails">
+                    <div id="azHumidity">H: --</div>
+                    <div id="azWind">W: --</div>
+                </div>
+            </div>
+
+            <div class="box">
+                <b class="cityName">St. Croix</b>
+                <div id="viTemp" class="bigTemp">--</div>
+                <div id="viTime" class="timeDisplay"></div>
+                <div class="weatherDetails">
+                    <div id="viHumidity">H: --</div>
+                    <div id="viWind">W: --</div>
+                </div>
+            </div>
+
+            <div class="box">
+                <b class="cityName">Key West</b>
+                <div id="kwTemp" class="bigTemp">--</div>
+                <div id="kwTime" class="timeDisplay"></div>
+                <div class="weatherDetails">
+                    <div id="kwHumidity">H: --</div>
+                    <div id="kwWind">W: --</div>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="box" style="padding: 0; background: #000;">
+            <iframe 
+                width="100%" 
+                height="100%" 
+                src="https://www.youtube.com/embed/ozULWucvGWQ?autoplay=1&mute=1&modestbranding=1&rel=0" 
+                title="Phoenix Arizona Live Feed" 
+                style="border: none;" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+            </iframe>
+        </div>
     </div>
 
 </div>
@@ -228,11 +243,8 @@ function getWindDirection(deg) {
 
 function updateHurricaneSeasonCountdown() {
     const now = new Date();
-    const year = now.getFullYear();
-    const endOfSeason = new Date(year, 10, 30, 23, 59, 59);
-    
-    const timeDiff = endOfSeason - now;
-    const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    const endOfSeason = new Date(now.getFullYear(), 10, 30, 23, 59, 59);
+    const daysLeft = Math.ceil((endOfSeason - now) / (1000 * 60 * 60 * 24));
     
     if (daysLeft > 0 && daysLeft <= 183) {
         document.getElementById("caneCountdown").innerHTML = daysLeft + " days until season ends";
@@ -249,15 +261,10 @@ async function checkHurricanes() {
         
         if (data.features && data.features.length > 0) {
             statusBox.className = "hurricaneStatusText activeStorm";
-            let headline = data.features[0].properties.headline;
-            if(headline.toLowerCase().includes("hurricane")) {
-                statusBox.innerHTML = "⚠️ ACTIVE HURRICANE";
-            } else {
-                statusBox.innerHTML = "⚠️ TROPICAL STORM ACTIVE";
-            }
+            statusBox.innerHTML = "⚠️ ACTIVE STORM";
         } else {
             statusBox.className = "hurricaneStatusText noStorms";
-            statusBox.innerHTML = "✓ No Active Storms";
+            statusBox.innerHTML = "✓ Basin Quiet";
         }
     } catch (e) {
         document.getElementById("caneStatus").innerHTML = "✓ Basin Quiet";
@@ -268,26 +275,19 @@ async function load(){
     updateHurricaneSeasonCountdown();
     checkHurricanes();
 
-    // 1. DEERFIELD BEACH FETCH
+    // 1. DEERFIELD BEACH
     let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&wind_speed_unit=mph");
     let res1 = await r1.json();
     let dfb = res1.current;
-
     if (dfb) {
         document.getElementById("dfbTemp").className = "bigTemp " + tempClass(dfb.temperature_2m);
         document.getElementById("dfbTemp").innerHTML = dfb.temperature_2m + "°F";
-        document.getElementById("dfbHumidity").innerHTML = "Humidity: " + dfb.relative_humidity_2m + "%";
-        document.getElementById("dfbWind").innerHTML = "Wind: " + Math.round(dfb.wind_speed_10m) + " mph " + getWindDirection(dfb.wind_direction_10m);
+        document.getElementById("dfbHumidity").innerHTML = "H: " + dfb.relative_humidity_2m + "%";
+        document.getElementById("dfbWind").innerHTML = "W: " + Math.round(dfb.wind_speed_10m) + " mph";
     }
+    document.getElementById("dfbTime").innerHTML = new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York", hour: "2-digit", minute: "2-digit"});
 
-    document.getElementById("dfbTime").innerHTML =
-        new Date().toLocaleTimeString("en-US", {
-            timeZone: "America/New_York",
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-
-    // PRINCESS MOOD LOGIC
+    // PRINCESS MOOD UPDATE
     let mood = "princess_sunny.gif";
     if (dfb) {
         if (dfb.temperature_2m >= 90) mood = "princess_hot.gif";
@@ -296,25 +296,41 @@ async function load(){
     }
     document.getElementById("princessMood").src = mood;
 
-
-    // 2. ANTHEM AZ FETCH
+    // 2. ANTHEM ARIZONA
     let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&wind_speed_unit=mph");
     let res2 = await r2.json();
     let az = res2.current;
-
     if (az) {
         document.getElementById("azTemp").className = "bigTemp " + tempClass(az.temperature_2m);
         document.getElementById("azTemp").innerHTML = az.temperature_2m + "°F";
-        document.getElementById("azHumidity").innerHTML = "Humidity: " + az.relative_humidity_2m + "%";
-        document.getElementById("azWind").innerHTML = "Wind: " + Math.round(az.wind_speed_10m) + " mph " + getWindDirection(az.wind_direction_10m);
+        document.getElementById("azHumidity").innerHTML = "H: " + az.relative_humidity_2m + "%";
+        document.getElementById("azWind").innerHTML = "W: " + Math.round(az.wind_speed_10m) + " mph";
     }
+    document.getElementById("azTime").innerHTML = new Date().toLocaleTimeString("en-US", {timeZone: "America/Phoenix", hour: "2-digit", minute: "2-digit"});
 
-    document.getElementById("azTime").innerHTML =
-        new Date().toLocaleTimeString("en-US", {
-            timeZone: "America/Phoenix",
-            hour: "2-digit",
-            minute: "2-digit"
-        });
+    // 3. CHRISTIANSTED, USVI
+    let r3 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=17.7466&longitude=-64.7031&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&wind_speed_unit=mph");
+    let res3 = await r3.json();
+    let vi = res3.current;
+    if (vi) {
+        document.getElementById("viTemp").className = "bigTemp " + tempClass(vi.temperature_2m);
+        document.getElementById("viTemp").innerHTML = vi.temperature_2m + "°F";
+        document.getElementById("viHumidity").innerHTML = "H: " + vi.relative_humidity_2m + "%";
+        document.getElementById("viWind").innerHTML = "W: " + Math.round(vi.wind_speed_10m) + " mph";
+    }
+    document.getElementById("viTime").innerHTML = new Date().toLocaleTimeString("en-US", {timeZone: "America/Port_of_Spain", hour: "2-digit", minute: "2-digit"});
+
+    // 4. KEY WEST, FLORIDA
+    let r4 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=24.5551&longitude=-81.7800&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&wind_speed_unit=mph");
+    let res4 = await r4.json();
+    let kw = res4.current;
+    if (kw) {
+        document.getElementById("kwTemp").className = "bigTemp " + tempClass(kw.temperature_2m);
+        document.getElementById("kwTemp").innerHTML = kw.temperature_2m + "°F";
+        document.getElementById("kwHumidity").innerHTML = "H: " + kw.relative_humidity_2m + "%";
+        document.getElementById("kwWind").innerHTML = "W: " + Math.round(kw.wind_speed_10m) + " mph";
+    }
+    document.getElementById("kwTime").innerHTML = new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York", hour: "2-digit", minute: "2-digit"});
 }
 
 load();
