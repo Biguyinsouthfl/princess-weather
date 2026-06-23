@@ -41,11 +41,11 @@ body {
     height: 100%;
 }
 
-/* RIGHT GRID */
+/* RIGHT GRID (Modified for dynamic tile row sizes) */
 .rightGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
+    grid-template-rows: 1.1fr 1fr 1.5fr; /* Created a larger bottom row for the beach video */
     gap: 10px;
     padding: 10px;
     box-sizing: border-box;
@@ -61,6 +61,11 @@ body {
     overflow: hidden;
     font-size: 24px;
     line-height: 1.3;
+}
+
+/* FULL WIDTH ROW SECTIONS */
+.fullWidthBox {
+    grid-column: span 2;
 }
 
 /* CITY NAMES */
@@ -115,6 +120,17 @@ body {
 .noStorms { color: #00ff66; }
 .activeStorm { color: #ff3b3b; }
 
+/* DUAL CITY BOX FLEX */
+.dualCityLayout {
+    display: flex;
+    justify-content: space-between;
+    height: 100%;
+    box-sizing: border-box;
+}
+.cityColumn {
+    width: 48%;
+}
+
 </style>
 </head>
 
@@ -137,36 +153,58 @@ body {
     <!-- RIGHT SIDE -->
     <div class="rightGrid">
 
+        <!-- ROW 1, LEFT: Princess Mood -->
         <div class="box" style="display: flex; align-items: center; justify-content: center;">
             <img id="princessMood" src="princess_sunny.gif"
                  style="width:100%;height:100%;object-fit:contain;">
         </div>
 
-        <div class="box">
-            <b class="cityName">Deerfield Beach</b>
-            <div id="dfbTemp" class="bigTemp">--</div>
-            <div id="dfbTime" class="timeDisplay"></div>
-            <div class="weatherDetails">
-                <div id="dfbHumidity">Humidity: --</div>
-                <div id="dfbWind">Wind: --</div>
-            </div>
-        </div>
-
-        <!-- HURRICANE STATUS BOX -->
+        <!-- ROW 1, RIGHT: Hurricane Status Box -->
         <div class="box">
             <b>Hurricane Basin</b>
             <div id="caneCountdown" class="hurricaneCountdown">Calculating season...</div>
             <div id="caneStatus" class="hurricaneStatusText noStorms">Checking NHC Feed...</div>
         </div>
 
-        <div class="box">
-            <b class="cityName">Anthem AZ</b>
-            <div id="azTemp" class="bigTemp">--</div>
-            <div id="azTime" class="timeDisplay"></div>
-            <div class="weatherDetails">
-                <div id="azHumidity">Humidity: --</div>
-                <div id="azWind">Wind: --</div>
+        <!-- ROW 2: Combined Dual Weather Station Box (Full Width across row) -->
+        <div class="box fullWidthBox">
+            <div class="dualCityLayout">
+                <!-- Left half: Deerfield Beach -->
+                <div class="cityColumn" style="border-right: 1px dashed #45f3ff; padding-right: 10px;">
+                    <b class="cityName">Deerfield Beach</b>
+                    <div id="dfbTemp" class="bigTemp">--</div>
+                    <div id="dfbTime" class="timeDisplay"></div>
+                    <div class="weatherDetails">
+                        <div id="dfbHumidity">Humidity: --</div>
+                        <div id="dfbWind">Wind: --</div>
+                    </div>
+                </div>
+                
+                <!-- Right half: Anthem Arizona -->
+                <div class="cityColumn" style="padding-left: 15px;">
+                    <b class="cityName">Anthem AZ</b>
+                    <div id="azTemp" class="bigTemp">--</div>
+                    <div id="azTime" class="timeDisplay"></div>
+                    <div class="weatherDetails">
+                        <div id="azHumidity">Humidity: --</div>
+                        <div id="azWind">Wind: --</div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- ROW 3: Live Deerfield Beach Camera Feed (Full Width at bottom) -->
+        <div class="box fullWidthBox" style="padding: 0; background: #000;">
+            <!-- Converted watch URL to an optimized, borderless autoplaying iframe element -->
+            <iframe 
+                width="100%" 
+                height="100%" 
+                src="https://www.youtube.com/embed/rdeoEeJ00xA?autoplay=1&mute=1&modestbranding=1&rel=0" 
+                title="Deerfield Beach Live Cam" 
+                style="border: none;" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+            </iframe>
         </div>
 
     </div>
@@ -188,16 +226,15 @@ function getWindDirection(deg) {
     return directions[index];
 }
 
-// Logic to determine countdown to end of season
 function updateHurricaneSeasonCountdown() {
     const now = new Date();
     const year = now.getFullYear();
-    const endOfSeason = new Date(year, 10, 30, 23, 59, 59); // November 30th
+    const endOfSeason = new Date(year, 10, 30, 23, 59, 59);
     
     const timeDiff = endOfSeason - now;
     const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
     
-    if (daysLeft > 0 && daysLeft <= 183) { // Inside season (June 1 - Nov 30)
+    if (daysLeft > 0 && daysLeft <= 183) {
         document.getElementById("caneCountdown").innerHTML = daysLeft + " days until season ends";
     } else {
         document.getElementById("caneCountdown").innerHTML = "Off-Season";
@@ -206,17 +243,12 @@ function updateHurricaneSeasonCountdown() {
 
 async function checkHurricanes() {
     try {
-        // Fetches open active storm tracking metrics via an open API tracking the NHC feeds
         let response = await fetch("https://api.weather.gov/alerts/active?category=Met&event=Hurricane%20Warning,Hurricane%20Watch,Tropical%20Storm%20Warning,Tropical%20Storm%20Watch");
         let data = await response.json();
-        
         let statusBox = document.getElementById("caneStatus");
         
-        // Simple mock parse check of NOAA/NHC active features
         if (data.features && data.features.length > 0) {
             statusBox.className = "hurricaneStatusText activeStorm";
-            
-            // Extract storm tracking context if present, or generic warning
             let headline = data.features[0].properties.headline;
             if(headline.toLowerCase().includes("hurricane")) {
                 statusBox.innerHTML = "⚠️ ACTIVE HURRICANE";
@@ -228,7 +260,6 @@ async function checkHurricanes() {
             statusBox.innerHTML = "✓ No Active Storms";
         }
     } catch (e) {
-        // Fallback safely if network check blips
         document.getElementById("caneStatus").innerHTML = "✓ Basin Quiet";
     }
 }
