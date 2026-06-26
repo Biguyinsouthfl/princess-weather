@@ -27,7 +27,7 @@ body {
     pointer-events: none;
 }
 
-/* MASTER GRID (3 Columns to match the sketch) */
+/* MASTER GRID (3 Columns) */
 .grid {
     display: grid;
     grid-template-columns: 1.2fr 1fr 1fr;
@@ -128,11 +128,10 @@ body {
 
 <body>
 
-<img id="princess" src="IMG_4728.PNG">
+<img id="princess" src="IMG_4728.png">
 
 <div class="grid">
 
-                    <!-- COLUMN 1: Weather Map -->
     <div class="mapBox">
         <iframe 
             src="https://embed.windy.com/embed2.html?lat=26.2972&lon=-80.1606&detailLat=26.2972&detailLon=-80.1606&zoom=11&level=surface&overlay=rain&menu=&message=&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=true&metricWind=default&metricTemp=%C2%B0F&radarRange=-1" 
@@ -141,9 +140,6 @@ body {
             style="border: none;">
         </iframe>
     </div>
-
-
-
 
     <div class="centerColumn">
         <div class="box" style="display: flex; align-items: center; justify-content: center;">
@@ -215,16 +211,11 @@ body {
             
         </div>
 
-        <div class="box" style="padding: 0; background: #000;">
-            <iframe 
-                width="100%" 
-                height="100%" 
-                src="https://www.youtube.com/embed/ozULWucvGWQ?autoplay=1&mute=1&modestbranding=1&rel=0" 
-                title="Phoenix Arizona Live Feed" 
-                style="border: none;" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen>
-            </iframe>
+        <div class="box" style="display: flex; flex-direction: column; justify-content: space-around; background: #050505;">
+            <b style="font-size: 18px; color: #45f3ff; margin-bottom: 5px;">5-Day Local Forecast (33442)</b>
+            <div id="forecastContainer" style="display: flex; justify-content: space-between; align-items: center; height: 100%; text-align: center;">
+                <div style="color: #b0b0b0; font-size: 16px;">Loading daily metrics...</div>
+            </div>
         </div>
     </div>
 
@@ -335,6 +326,41 @@ async function load(){
         document.getElementById("kwWind").innerHTML = "W: " + Math.round(kw.wind_speed_10m) + " mph";
     }
     document.getElementById("kwTime").innerHTML = new Date().toLocaleTimeString("en-US", {timeZone: "Asia/Riyadh", hour: "2-digit", minute: "2-digit"});
+
+    // 5. 5-DAY LOCAL FORECAST (DEERFIELD BEACH 33442)
+    try {
+        let r5 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.2972&longitude=-80.1606&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=America/New_York");
+        let res5 = await r5.json();
+        
+        if (res5 && res5.daily) {
+            let container = document.getElementById("forecastContainer");
+            container.innerHTML = ""; 
+            
+            for (let i = 0; i < 5; i++) {
+                let dateStr = res5.daily.time[i];
+                let maxTemp = Math.round(res5.daily.temperature_2m_max[i]);
+                let minTemp = Math.round(res5.daily.temperature_2m_min[i]);
+                
+                let dateObj = new Date(dateStr + "T00:00:00");
+                let dayName = dateObj.toLocaleDateString("en-US", { weekday: 'short' });
+                
+                let dayCard = document.createElement("div");
+                dayCard.style.flex = "1";
+                dayCard.style.display = "flex";
+                dayCard.style.flexDirection = "column";
+                dayCard.style.gap = "4px";
+                
+                dayCard.innerHTML = `
+                    <div style="font-size: 16px; font-weight: bold; color: #fff;">${dayName}</div>
+                    <div style="font-size: 18px; font-weight: bold; color: #ff8c1a;">${maxTemp}°</div>
+                    <div style="font-size: 14px; color: #66ccff;">${minTemp}°</div>
+                `;
+                container.appendChild(dayCard);
+            }
+        }
+    } catch (err) {
+        document.getElementById("forecastContainer").innerHTML = "<div style='color: #ff3b3b;'>Forecast Offline</div>";
+    }
 }
 
 load();
