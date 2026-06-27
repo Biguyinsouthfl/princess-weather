@@ -364,7 +364,7 @@ async function load(){
     let mood = "princess_sunny.gif";
     if (dfb) {
         if (dfb.temperature_2m >= 90) mood = "princess_hot.gif";
-        else if (dfb.weather_code >= 95) mood = "princess_storm.gif";
+        else if (dfb.weather_code >= 95) mood = "princess_storm.GIF";
         else if (dfb.weather_code >= 51 && dfb.weather_code <= 67) mood = "princess_rain.gif";
     }
     document.getElementById("princessMood").src = mood;
