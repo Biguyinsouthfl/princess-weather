@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Weather Dashboard</title>
 
-<style>
+<!-- Include Chart.js for the Temperature Comparison Graph -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<style>
 body {
     margin: 0;
     background: #000;
@@ -19,37 +21,44 @@ body {
 /* PRINCESS LOGO BANNER (Top Left overlay) */
 #princess {
     position: fixed;
-    top: 10px;
-    left: 10px;
-    height: 100px;
+    top: 15px;
+    left: 15px;
+    height: 80px;
     width: auto;
     z-index: 99999;
     pointer-events: none;
 }
 
-/* MASTER GRID (3 Columns) */
+/* MASTER 3-COLUMN GRID MATCHING image_2.png */
 .grid {
     display: grid;
-    grid-template-columns: 1.2fr 1fr 1fr;
+    grid-template-columns: 1.2fr 1fr 1.3fr;
     height: 100vh;
     gap: 10px;
     padding: 10px;
     box-sizing: border-box;
 }
 
-/* INNER COLUMN BOXES */
-.centerColumn, .rightColumn {
+/* COLUMN SUB-LAYOUTS */
+.leftColumn {
     display: grid;
+    grid-template-rows: 2.8fr 1fr;
     gap: 10px;
     height: 100%;
 }
 
 .centerColumn {
-    grid-template-rows: 1.5fr 1fr 1.5fr;
+    display: grid;
+    grid-template-rows: 1.3fr 0.5fr 1.5fr;
+    gap: 10px;
+    height: 100%;
 }
 
 .rightColumn {
-    grid-template-rows: 2.5fr 1.5fr; 
+    display: grid;
+    grid-template-rows: 2fr 1fr;
+    gap: 10px;
+    height: 100%;
 }
 
 /* 2x2 MINI GRID FOR WEATHER DATA */
@@ -67,12 +76,14 @@ body {
     border-radius: 8px;
     padding: 12px;
     overflow: hidden;
-    font-size: 20px;
+    font-size: 18px;
     line-height: 1.3;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
-/* FULL EDGE-TO-EDGE LEFT SIDE RADAR */
+/* FULL EDGE-TO-EDGE MAP BOX */
 .mapBox {
     background: #ffffff;
     border: 1px solid #45f3ff;
@@ -81,36 +92,36 @@ body {
     height: 100%;
 }
 
-/* TYPOGRAPHY SCALING FOR DYNAMIC READS */
+/* TYPOGRAPHY SCALING */
 .cityName {
-    font-size: 22px;
+    font-size: 20px;
     display: block;
     margin-bottom: 2px;
 }
 
 .bigTemp {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: bold;
 }
 
 .timeDisplay {
-    font-size: 18px;
+    font-size: 16px;
     color: #e0e0e0;
 }
 
 .weatherDetails {
-    font-size: 16px;
+    font-size: 14px;
     color: #b0b0b0;
     margin-top: 4px;
 }
 
 /* HURRICANE BANNER DESIGN */
 .hurricaneCountdown {
-    font-size: 18px;
+    font-size: 16px;
     color: #b0b0b0;
 }
 .hurricaneStatusText {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
     margin-top: 5px;
 }
@@ -125,34 +136,48 @@ body {
 
 </style>
 </head>
-
 <body>
 
 <img id="princess" src="IMG_4728.png">
 
 <div class="grid">
 
-    <div class="mapBox">
-        <iframe 
-            src="https://embed.windy.com/embed2.html?lat=26.2972&lon=-80.1606&detailLat=26.2972&detailLon=-80.1606&zoom=11&level=surface&overlay=rain&menu=&message=&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=true&metricWind=default&metricTemp=%C2%B0F&radarRange=-1" 
-            width="100%" 
-            height="100%" 
-            style="border: none;">
-        </iframe>
+    <!-- COLUMN 1: Left Side Layout -->
+    <div class="leftColumn">
+        <!-- Top: Weather Map -->
+        <div class="mapBox">
+            <iframe 
+                src="https://embed.windy.com/embed2.html?lat=26.2972&lon=-80.1606&detailLat=26.2972&detailLon=-80.1606&zoom=11&level=surface&overlay=rain&menu=&message=&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=true&metricWind=default&metricTemp=%C2%B0F&radarRange=-1" 
+                width="100%" 
+                height="100%" 
+                style="border: none;">
+            </iframe>
+        </div>
+        
+        <!-- Bottom: 5-Day Forecast -->
+        <div class="box" style="justify-content: space-around;">
+            <b style="font-size: 16px; color: #45f3ff; margin-bottom: 2px;">5-Day Local Forecast (33442)</b>
+            <div id="forecastContainer" style="display: flex; justify-content: space-between; align-items: center; height: 100%; text-align: center;">
+                <div style="color: #b0b0b0; font-size: 14px; width: 100%;">Loading daily metrics...</div>
+            </div>
+        </div>
     </div>
 
+    <!-- COLUMN 2: Center Layout -->
     <div class="centerColumn">
-        <div class="box" style="display: flex; align-items: center; justify-content: center;">
-            <img id="princessMood" src="princess_sunny.gif"
-                 style="width:100%;height:100%;object-fit:contain;">
-        </div>
-
-        <div class="box" style="display: flex; flex-direction: column; justify-content: center;">
+        <!-- Top: Hurricane Info -->
+        <div class="box" style="justify-content: center;">
             <b>Hurricane Center</b>
             <div id="caneCountdown" class="hurricaneCountdown">Calculating...</div>
             <div id="caneStatus" class="hurricaneStatusText noStorms">Checking Feed...</div>
         </div>
 
+        <!-- Middle: Princess GIF (Slim Layout Row) -->
+        <div class="box" style="align-items: center; justify-content: center; padding: 4px;">
+            <img id="princessMood" src="princess_sunny.gif" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+
+        <!-- Bottom: Video of Deerfield -->
         <div class="box" style="padding: 0; background: #000;">
             <iframe 
                 width="100%" 
@@ -166,9 +191,11 @@ body {
         </div>
     </div>
 
+    <!-- COLUMN 3: Right Side Layout -->
     <div class="rightColumn">
+        <!-- Top: 4-Quadrant City Layout -->
         <div class="weatherMiniGrid">
-            
+            <!-- Box 1: Deerfield -->
             <div class="box">
                 <b class="cityName">Deerfield</b>
                 <div id="dfbTemp" class="bigTemp">--</div>
@@ -179,6 +206,7 @@ body {
                 </div>
             </div>
 
+            <!-- Box 2: AZ -->
             <div class="box">
                 <b class="cityName">Anthem AZ</b>
                 <div id="azTemp" class="bigTemp">--</div>
@@ -189,6 +217,7 @@ body {
                 </div>
             </div>
 
+            <!-- Box 3: St. Croix -->
             <div class="box">
                 <b class="cityName">St. Croix</b>
                 <div id="viTemp" class="bigTemp">--</div>
@@ -199,6 +228,7 @@ body {
                 </div>
             </div>
 
+            <!-- Box 4: Riyadh -->
             <div class="box">
                 <b class="cityName">Riyadh</b>
                 <div id="kwTemp" class="bigTemp">--</div>
@@ -208,32 +238,24 @@ body {
                     <div id="kwWind">W: --</div>
                 </div>
             </div>
-            
         </div>
 
-        <div class="box" style="display: flex; flex-direction: column; justify-content: space-around; background: #050505;">
-            <b style="font-size: 18px; color: #45f3ff; margin-bottom: 5px;">5-Day Local Forecast (33442)</b>
-            <div id="forecastContainer" style="display: flex; justify-content: space-between; align-items: center; height: 100%; text-align: center;">
-                <div style="color: #b0b0b0; font-size: 16px;">Loading daily metrics...</div>
-            </div>
+        <!-- Bottom: Temp Graph Comparison -->
+        <div class="box" style="padding: 8px; justify-content: center; position: relative;">
+            <canvas id="tempComparisonChart" style="width: 100%; height: 100%; max-height: 100%;"></canvas>
         </div>
     </div>
 
 </div>
 
 <script>
+let tempChart = null;
 
 function tempClass(t){
     if(t >= 90) return "hot";
     if(t >= 80) return "warm";
     if(t >= 70) return "mid";
     return "cool";
-}
-
-function getWindDirection(deg) {
-    const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-    const index = Math.round(((deg % 360) / 45)) % 8;
-    return directions[index];
 }
 
 function updateHurricaneSeasonCountdown() {
@@ -266,12 +288,68 @@ async function checkHurricanes() {
     }
 }
 
+function buildChart(hours, dfbData, riyadhData) {
+    const ctx = document.getElementById('tempComparisonChart').getContext('2d');
+    
+    if (tempChart) {
+        tempChart.destroy(); // Clear old instance on data refresh
+    }
+
+    tempChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: hours,
+            datasets: [
+                {
+                    label: 'Deerfield',
+                    data: dfbData,
+                    borderColor: '#45f3ff',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    pointRadius: 1,
+                    tension: 0.2
+                },
+                {
+                    label: 'Riyadh',
+                    data: riyadhData,
+                    borderColor: '#ff8c1a',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    pointRadius: 1,
+                    tension: 0.2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: { color: '#fff', font: { size: 11 }, boxWidth: 12 },
+                    position: 'top'
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#b0b0b0', font: { size: 9 }, maxTicksLimit: 6 }
+                },
+                y: {
+                    grid: { color: '#222' },
+                    ticks: { color: '#b0b0b0', font: { size: 10 } }
+                }
+            }
+        }
+    });
+}
+
 async function load(){
     updateHurricaneSeasonCountdown();
     checkHurricanes();
 
-    // 1. DEERFIELD BEACH
-    let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&wind_speed_unit=mph");
+    // 1. DEERFIELD BEACH CURRENT & HOURLY GRAPH DATA
+    let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America/New_York&forecast_days=1");
     let res1 = await r1.json();
     let dfb = res1.current;
     if (dfb) {
@@ -286,13 +364,13 @@ async function load(){
     let mood = "princess_sunny.gif";
     if (dfb) {
         if (dfb.temperature_2m >= 90) mood = "princess_hot.gif";
-        else if (dfb.weather_code >= 95) mood = "princess_storm.GIF";
+        else if (dfb.weather_code >= 95) mood = "princess_storm.gif";
         else if (dfb.weather_code >= 51 && dfb.weather_code <= 67) mood = "princess_rain.gif";
     }
     document.getElementById("princessMood").src = mood;
 
     // 2. ANTHEM ARIZONA
-    let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&wind_speed_unit=mph");
+    let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current=temperature_2m,relative_humidity_2m,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph");
     let res2 = await r2.json();
     let az = res2.current;
     if (az) {
@@ -304,7 +382,7 @@ async function load(){
     document.getElementById("azTime").innerHTML = new Date().toLocaleTimeString("en-US", {timeZone: "America/Phoenix", hour: "2-digit", minute: "2-digit"});
 
     // 3. CHRISTIANSTED, USVI
-    let r3 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=17.7466&longitude=-64.7031&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&wind_speed_unit=mph");
+    let r3 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=17.7466&longitude=-64.7031&current=temperature_2m,relative_humidity_2m,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph");
     let res3 = await r3.json();
     let vi = res3.current;
     if (vi) {
@@ -315,8 +393,8 @@ async function load(){
     }
     document.getElementById("viTime").innerHTML = new Date().toLocaleTimeString("en-US", {timeZone: "America/Port_of_Spain", hour: "2-digit", minute: "2-digit"});
 
-    // 4. RIYADH, SAUDI ARABIA
-    let r4 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=24.6877&longitude=46.7219&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&wind_speed_unit=mph");
+    // 4. RIYADH, SAUDI ARABIA CURRENT & HOURLY GRAPH DATA
+    let r4 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=24.6877&longitude=46.7219&current=temperature_2m,relative_humidity_2m,wind_speed_10m&hourly=temperature_2m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=Asia/Riyadh&forecast_days=1");
     let res4 = await r4.json();
     let kw = res4.current;
     if (kw) {
@@ -327,7 +405,17 @@ async function load(){
     }
     document.getElementById("kwTime").innerHTML = new Date().toLocaleTimeString("en-US", {timeZone: "Asia/Riyadh", hour: "2-digit", minute: "2-digit"});
 
-    // 5. 5-DAY LOCAL FORECAST (DEERFIELD BEACH 33442)
+    // BUILD THE GRAPH SIDE-BY-SIDE HOURLY DATA
+    if (res1.hourly && res4.hourly) {
+        // Map out raw time strings to friendly hour formats (e.g., "08:00")
+        let hourlyLabels = res1.hourly.time.map(t => t.split('T')[1]);
+        let deerfieldHourly = res1.hourly.temperature_2m;
+        let riyadhHourly = res4.hourly.temperature_2m;
+        
+        buildChart(hourlyLabels, deerfieldHourly, riyadhHourly);
+    }
+
+    // 5. 5-DAY LOCAL FORECAST (33442)
     try {
         let r5 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.2972&longitude=-80.1606&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=America/New_York");
         let res5 = await r5.json();
@@ -348,12 +436,12 @@ async function load(){
                 dayCard.style.flex = "1";
                 dayCard.style.display = "flex";
                 dayCard.style.flexDirection = "column";
-                dayCard.style.gap = "4px";
+                dayCard.style.gap = "2px";
                 
                 dayCard.innerHTML = `
-                    <div style="font-size: 16px; font-weight: bold; color: #fff;">${dayName}</div>
-                    <div style="font-size: 18px; font-weight: bold; color: #ff8c1a;">${maxTemp}°</div>
-                    <div style="font-size: 14px; color: #66ccff;">${minTemp}°</div>
+                    <div style="font-size: 14px; font-weight: bold; color: #fff;">${dayName}</div>
+                    <div style="font-size: 16px; font-weight: bold; color: #ff8c1a;">${maxTemp}°</div>
+                    <div style="font-size: 12px; color: #66ccff;">${minTemp}°</div>
                 `;
                 container.appendChild(dayCard);
             }
@@ -364,8 +452,8 @@ async function load(){
 }
 
 load();
+// Refresh data and update chart mapping every 5 minutes
 setInterval(load, 300000);
-
 </script>
 
 </body>
