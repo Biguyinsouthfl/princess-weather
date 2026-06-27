@@ -49,7 +49,7 @@ body {
 
 .centerColumn {
     display: grid;
-    grid-template-rows: 1.3fr 0.5fr 1.5fr;
+    grid-template-rows: 1fr 1.5fr; /* Rearranged smoothly since middle box is removed */
     gap: 10px;
     height: 100%;
 }
@@ -172,11 +172,6 @@ body {
             <div id="caneStatus" class="hurricaneStatusText noStorms">Checking Feed...</div>
         </div>
 
-        <!-- Middle: Princess GIF (Slim Layout Row) -->
-        <div class="box" style="align-items: center; justify-content: center; padding: 4px;">
-            <img id="princessMood" src="princess_sunny.gif" style="width:100%; height:100%; object-fit:contain;">
-        </div>
-
         <!-- Bottom: Video of Deerfield -->
         <div class="box" style="padding: 0; background: #000;">
             <iframe 
@@ -292,7 +287,7 @@ function buildChart(hours, dfbData, riyadhData) {
     const ctx = document.getElementById('tempComparisonChart').getContext('2d');
     
     if (tempChart) {
-        tempChart.destroy(); // Clear old instance on data refresh
+        tempChart.destroy();
     }
 
     tempChart = new Chart(ctx, {
@@ -360,15 +355,6 @@ async function load(){
     }
     document.getElementById("dfbTime").innerHTML = new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York", hour: "2-digit", minute: "2-digit"});
 
-    // PRINCESS MOOD UPDATE
-    let mood = "princess_sunny.gif";
-    if (dfb) {
-        if (dfb.temperature_2m >= 90) mood = "princess_hot.gif";
-        else if (dfb.weather_code >= 95) mood = "princess_storm.GIF";
-        else if (dfb.weather_code >= 51 && dfb.weather_code <= 67) mood = "princess_rain.gif";
-    }
-    document.getElementById("princessMood").src = mood;
-
     // 2. ANTHEM ARIZONA
     let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current=temperature_2m,relative_humidity_2m,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph");
     let res2 = await r2.json();
@@ -407,7 +393,6 @@ async function load(){
 
     // BUILD THE GRAPH SIDE-BY-SIDE HOURLY DATA
     if (res1.hourly && res4.hourly) {
-        // Map out raw time strings to friendly hour formats (e.g., "08:00")
         let hourlyLabels = res1.hourly.time.map(t => t.split('T')[1]);
         let deerfieldHourly = res1.hourly.temperature_2m;
         let riyadhHourly = res4.hourly.temperature_2m;
@@ -452,7 +437,6 @@ async function load(){
 }
 
 load();
-// Refresh data and update chart mapping every 5 minutes
 setInterval(load, 300000);
 </script>
 
