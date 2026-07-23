@@ -109,13 +109,14 @@ body {
 .warm { color: #ff8c1a; }
 .mid { color: #ffd84d; }
 .cool { color: #66ccff; }
-.alert-active { color: #ff3b3b; font-weight: bold; animation: pulse 2s infinite; }
+.alert-active { color: #ff3b3b; font-weight: bold; animation: pulse 1.5s infinite; }
+.alert-warning { color: #ffd84d; font-weight: bold; animation: pulse 2s infinite; }
 .alert-quiet { color: #00ff66; }
 
 @keyframes pulse {
-    0% { opacity: 0.7; }
+    0% { opacity: 0.6; }
     50% { opacity: 1; }
-    100% { opacity: 0.7; }
+    100% { opacity: 0.6; }
 }
 </style>
 </head>
@@ -189,11 +190,12 @@ body {
         </div>
     </div>
 
-    <!-- Col 2 Bottom: Hurricane Info -->
-    <div class="box" style="justify-content: center; text-align: center;">
-        <div class="section-title" style="margin-bottom: 2px;">Hurricane Tracker</div>
-        <div id="caneCountdown" style="font-size: 12px; color: #b0b0b0;">Analyzing Basin...</div>
-        <div id="caneStatus" class="alert-quiet" style="font-size: 18px; font-weight: bold; margin-top: 4px;">✓ Clear</div>
+    <!-- Col 2 Bottom: Hurricane Info (UPGRADED REAL-TIME ENGINE) -->
+    <div class="box" style="justify-content: center; text-align: center; padding: 8px;">
+        <div class="section-title" style="margin-bottom: 3px;">Hurricane Tracker</div>
+        <div id="caneCountdown" style="font-size: 11px; color: #b0b0b0;">Analyzing Basin...</div>
+        <div id="caneStormList" style="font-size: 11px; color: #ffd84d; margin: 3px 0; max-height: 28px; overflow: hidden; line-height: 1.2;">Checking NOAA feeds...</div>
+        <div id="caneStatus" class="alert-quiet" style="font-size: 15px; font-weight: bold;">✓ Clear</div>
     </div>
 
     <!-- Col 3 & 4 Bottom: Shared Multi-City Graph -->
@@ -246,28 +248,64 @@ function cycleNews() {
 }
 setInterval(cycleNews, 10000);
 
+/* REAL-TIME HURRICANE & TROPICAL THREAT TRACKER ENGINE */
 async function checkTropicThreats() {
+    const statusBox = document.getElementById("caneStatus");
+    const stormListBox = document.getElementById("caneStormList");
+    const countdownBox = document.getElementById("caneCountdown");
+
+    // 1. Season Countdown Calculation
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    let seasonStart = new Date(currentYear, 5, 1);  // June 1st
+    let seasonEnd = new Date(currentYear, 10, 30, 23, 59, 59); // Nov 30th
+
+    if (now >= seasonStart && now <= seasonEnd) {
+        const daysLeft = Math.ceil((seasonEnd - now) / (1000 * 60 * 60 * 24));
+        countdownBox.innerHTML = `⏳ Season Active (${daysLeft}d remaining)`;
+    } else {
+        if (now > seasonEnd) seasonStart = new Date(currentYear + 1, 5, 1);
+        const daysUntil = Math.ceil((seasonStart - now) / (1000 * 60 * 60 * 24));
+        countdownBox.innerHTML = `⏳ ${daysUntil}d until June 1st Season Start`;
+    }
+
     try {
-        let response = await fetch("https://api.weather.gov/alerts/active?category=Met&event=Hurricane%20Warning,Hurricane%20Watch,Tropical%20Storm%20Warning,Tropical%20Storm%20Watch");
-        let data = await response.json();
-        let statusBox = document.getElementById("caneStatus");
-        if (data.features && data.features.length > 0) {
+        // 2. Fetch Active Basin Tropical Alerts (Atlantic & Gulf)
+        let alertUrl = "https://api.weather.gov/alerts/active?event=Tropical%20Storm%20Warning,Tropical%20Storm%20Watch,Hurricane%20Warning,Hurricane%20Watch,Hurricane%20Local%20Statement";
+        let res = await fetch(alertUrl);
+        let data = await res.json();
+        let features = data.features || [];
+
+        // 3. Fetch Specific Coastal Broward Alerts (Zone FLZ068 / ZIP 33442)
+        let localRes = await fetch("https://api.weather.gov/alerts/active?zone=FLZ068");
+        let localData = await localRes.json();
+        let localFeatures = localData.features || [];
+
+        if (localFeatures.length > 0) {
+            let primaryAlert = localFeatures[0].properties.event;
             statusBox.className = "alert-active";
-            statusBox.innerHTML = "⚠️ CRITICAL STORM ACTIVE";
+            statusBox.innerHTML = `🚨 33442: ${primaryAlert.toUpperCase()}`;
+        } else if (features.length > 0) {
+            statusBox.className = "alert-warning";
+            statusBox.innerHTML = `⚠️ Active Tropical System in Basin`;
         } else {
             statusBox.className = "alert-quiet";
-            statusBox.innerHTML = "✓ Basin Quiet";
+            statusBox.innerHTML = `✓ Basin Quiet`;
         }
-    } catch (e) {
-        document.getElementById("caneStatus").innerHTML = "✓ Basin Quiet";
-    }
-}
 
-function updateCountdown() {
-    const now = new Date();
-    const endOfSeason = new Date(now.getFullYear(), 10, 30, 23, 59, 59);
-    const daysLeft = Math.ceil((endOfSeason - now) / (1000 * 60 * 60 * 24));
-    document.getElementById("caneCountdown").innerHTML = (daysLeft > 0 && daysLeft <= 183) ? daysLeft + " days until season ends" : "Off-Season Phase";
+        // 4. Query Tropical Summaries / Active Storm Names
+        if (features.length > 0) {
+            let uniqueEvents = [...new Set(features.map(f => f.properties.event))];
+            stormListBox.innerHTML = "🌀 " + uniqueEvents.slice(0, 2).join(" • ");
+        } else {
+            stormListBox.innerHTML = "🌀 No Active Named Threats";
+        }
+
+    } catch (e) {
+        statusBox.className = "alert-quiet";
+        statusBox.innerHTML = "✓ Basin Quiet";
+        stormListBox.innerHTML = "🌀 Monitoring Active";
+    }
 }
 
 function renderTelemetryGraph(hours, dfb, az, vi, riyadh) {
@@ -300,7 +338,6 @@ function renderTelemetryGraph(hours, dfb, az, vi, riyadh) {
 }
 
 async function executeCoreDataPipeline(){
-    updateCountdown();
     checkTropicThreats();
 
     // DFB METRICS ENGINE
