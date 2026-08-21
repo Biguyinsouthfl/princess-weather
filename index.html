@@ -3,114 +3,151 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Command Weather Dashboard</title>
-
-<!-- Include Chart.js for the multi-city telemetry graph -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>Princess's Weather Command Station</title>
 
 <style>
-body {
+* {
+    box-sizing: border-box;
     margin: 0;
-    background: #000;
-    color: white;
-    font-family: Arial, sans-serif;
-    height: 100vh;
-    overflow: hidden;
+    padding: 0;
 }
 
-/* PRINCESS LOGO OVERLAY */
+body {
+    background: #000000;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    padding: 8px;
+}
+
+/* PRINCESS LOGO FLOATING OVERLAY */
 #princess {
     position: fixed;
-    top: 15px;
-    left: 15px;
-    height: 65px;
+    top: 10px;
+    left: 10px;
+    height: 55px;
     width: auto;
     z-index: 99999;
     pointer-events: none;
 }
 
-/* MASTER TWO-ROW STRUCTURAL LOCK - PREVENTS COLLAPSE */
-.grid {
+/* MASTER GRID LAYOUT MATCHING IMAGE 3 SKETCH */
+.grid-container {
     display: grid;
-    grid-template-columns: 1.8fr 1fr 1fr 1fr; /* Widened Column 1 for Map Menu room */
-    grid-template-rows: 72% 28%; /* Explicit row height lock */
+    grid-template-rows: 18% 57% 25%; /* Top, Center, Bottom Rows */
     height: 100vh;
-    gap: 10px;
-    padding: 10px;
-    box-sizing: border-box;
+    gap: 8px;
 }
 
-/* VERTICAL INNER STACKS FOR VISUAL BALANCE */
-.video-double-stack {
+/* ROW 1: TOP BANNER (TIME | HOURLY FORECAST | TEMP) */
+.top-row {
     display: grid;
-    grid-template-rows: 1fr 1fr;
-    gap: 10px;
+    grid-template-columns: 18% 64% 18%;
+    gap: 8px;
     height: 100%;
 }
 
-/* COMPONENT CARDS */
+/* ROW 2: CENTER (WINDY MAP | HURRICANE + NEWS STACK) */
+.center-row {
+    display: grid;
+    grid-template-columns: 68% 32%;
+    gap: 8px;
+    height: 100%;
+}
+
+.right-stack {
+    display: grid;
+    grid-template-rows: 55% 45%;
+    gap: 8px;
+    height: 100%;
+}
+
+/* ROW 3: BOTTOM (2 WEBCAMS | 3 CITY TEMPS) */
+.bottom-row {
+    display: grid;
+    grid-template-columns: 24% 24% 17.3% 17.3% 17.3%;
+    gap: 8px;
+    height: 100%;
+}
+
+/* COMMON CARD PANEL STYLING */
 .box {
     background: #050505;
-    border: 1px solid #45f3ff;
+    border: 2px solid #45f3ff;
     border-radius: 8px;
-    padding: 12px;
+    padding: 6px;
     overflow: hidden;
-    font-size: 16px;
-    line-height: 1.3;
-    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    min-height: 0; /* Keeps elements from breaking out of parent constraints */
-}
-
-.mapBox {
-    background: #ffffff;
-    border: 1px solid #45f3ff;
-    border-radius: 8px;
-    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
     height: 100%;
 }
 
-/* TEXT DESIGN & PALETTES */
-.section-title {
-    font-size: 14px;
+.box-title {
+    font-size: 11px;
     font-weight: bold;
     color: #45f3ff;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 6px;
+    margin-bottom: 2px;
 }
 
-.metric-row {
+/* MAXIMIZED BIG NUMBERS FOR TIME AND TEMPERATURES */
+.big-number {
+    font-weight: 900;
+    line-height: 0.95;
+    font-size: clamp(28px, 6vh, 60px);
+}
+
+.top-big-temp, .top-big-time {
+    font-size: clamp(32px, 7.5vh, 75px);
+    font-weight: 900;
+    line-height: 0.9;
+}
+
+/* HOURLY FORECAST DISPLAY BLOCK */
+#hourly-container {
     display: flex;
-    justify-content: space-between;
-    padding: 5px 0;
-    border-bottom: 1px solid #111;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    height: 100%;
 }
 
-.big-temp-display {
-    font-size: 38px;
-    font-weight: bold;
-    margin: 3px 0;
+.hourly-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-/* NEWS DISPLAY EFFECT */
+.hourly-time { font-size: 11px; color: #aaa; }
+.hourly-temp { font-size: 18px; font-weight: bold; margin: 2px 0; }
+.hourly-pop { font-size: 12px; color: #66ccff; font-weight: bold; }
+
+/* NEWS TICKER */
 #news-ticker {
-    font-size: 14px;
-    color: #fff;
+    font-size: 13px;
+    color: #ffffff;
     font-weight: bold;
-    line-height: 1.4;
+    line-height: 1.3;
     transition: opacity 0.4s ease-in-out;
 }
 
-/* THEME CLASSES */
-.hot { color: #ff3b3b; }
-.warm { color: #ff8c1a; }
-.mid { color: #ffd84d; }
-.cool { color: #66ccff; }
-.alert-active { color: #ff3b3b; font-weight: bold; animation: pulse 1.5s infinite; }
-.alert-warning { color: #ffd84d; font-weight: bold; animation: pulse 2s infinite; }
+/* DYNAMIC TEMPERATURE COLOR THRESHOLDS */
+.t-cold   { color: #ffffff !important; } /* <= 59 */
+.t-cool   { color: #66ccff !important; } /* 60 - 69 */
+.t-yellow { color: #ffd84d !important; } /* 70 - 79 */
+.t-orange { color: #ff8c1a !important; } /* 80 - 89 */
+.t-lred   { color: #ff6666 !important; } /* 90 - 99 */
+.t-bred   { color: #ff0000 !important; } /* >= 100 */
+
+.alert-active { color: #ff3333; font-weight: bold; animation: pulse 1.5s infinite; }
 .alert-quiet { color: #00ff66; }
 
 @keyframes pulse {
@@ -124,282 +161,286 @@ body {
 
 <img id="princess" src="IMG_4728.png">
 
-<div class="grid">
+<div class="grid-container">
 
-    <!-- ==================== TOP ROW (72% Height) ==================== -->
-    
-    <!-- Col 1 Top: Weather Map (Expanded Width) -->
-    <div class="mapBox">
-        <iframe 
-            src="https://embed.windy.com/embed2.html?lat=26.2972&lon=-80.1606&zoom=11&level=surface&overlay=rain&menu=&message=&marker=true&calendar=now&metricWind=default&metricTemp=%C2%B0F" 
-            width="100%" height="100%" style="border: none;">
-        </iframe>
+    <!-- ==================== TOP ROW ==================== -->
+    <div class="top-row">
+        <!-- Local Time -->
+        <div class="box">
+            <div class="box-title">Local Time</div>
+            <div id="local-time" class="top-big-time" style="color: #ffffff;">--:--</div>
+        </div>
+
+        <!-- 6-Hour Hourly Forecast -->
+        <div class="box">
+            <div class="box-title" style="margin-bottom: 4px;">6-Hour Local Forecast (Time / Temp / Rain %)</div>
+            <div id="hourly-container">
+                <div style="color: #666; font-size: 12px;">Loading forecast timeline...</div>
+            </div>
+        </div>
+
+        <!-- Local Temp -->
+        <div class="box">
+            <div class="box-title">Local Temp</div>
+            <div id="local-temp" class="top-big-temp">--°</div>
+        </div>
     </div>
-    
-    <!-- Col 2 Top: Video Double Stack -->
-    <div class="video-double-stack">
-        <!-- Deerfield Cam -->
+
+
+    <!-- ==================== CENTER ROW ==================== -->
+    <div class="center-row">
+        <!-- Windy Radar Map -->
+        <div class="box" style="padding: 0;">
+            <iframe 
+                src="https://embed.windy.com/embed2.html?lat=26.2972&lon=-80.1606&zoom=11&level=surface&overlay=rain&menu=&message=&marker=true&calendar=now&metricWind=default&metricTemp=%C2%B0F" 
+                width="100%" height="100%" style="border: none;">
+            </iframe>
+        </div>
+
+        <!-- Hurricane & News Stack -->
+        <div class="right-stack">
+            <!-- Hurricane Tracker -->
+            <div class="box">
+                <div class="box-title">Hurricane Tracker</div>
+                <div id="caneCountdown" style="font-size: 12px; color: #bbb; margin-top: 2px;">Analyzing Season...</div>
+                <div id="caneStormList" style="font-size: 12px; color: #ffd84d; margin: 4px 0;">Querying NOAA feeds...</div>
+                <div id="caneStatus" class="alert-quiet" style="font-size: 16px; font-weight: bold;">✓ Basin Quiet</div>
+            </div>
+
+            <!-- Current Events Ticker -->
+            <div class="box" style="border-color: #ff8c1a;">
+                <div class="box-title" style="color: #ff8c1a;">US & World Headlines</div>
+                <div id="news-ticker" style="margin-top: 4px;">Fetching global news network...</div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== BOTTOM ROW ==================== -->
+    <div class="bottom-row">
+        <!-- YouTube Cam 1 -->
         <div class="box" style="padding: 0; background: #000;">
             <iframe width="100%" height="100%" src="https://www.youtube.com/embed/rdeoEeJ00xA?autoplay=1&mute=1&modestbranding=1&rel=0" style="border: none;" allowfullscreen></iframe>
         </div>
-        <!-- St. Croix Cam -->
+
+        <!-- YouTube Cam 2 -->
         <div class="box" style="padding: 0; background: #000;">
-            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/lm1f6_4XB9g?autoplay=1&mute=1&modestbranding=1&rel=0" style="border: none;" allowfullscreen></iframe>
+            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/f9pMVLoJfyE?autoplay=1&mute=1&modestbranding=1&rel=0" style="border: none;" allowfullscreen></iframe>
         </div>
-    </div>
 
-    <!-- Col 3 Top: Detailed Weather Telemetry -->
-    <div class="box">
-        <div class="section-title">Deerfield Beach 33442</div>
-        <div id="dfb-big-temp" class="big-temp-display">--°F</div>
-        <div style="font-size: 12px; color: #b0b0b0; margin-bottom: 6px;" id="dfb-updated-time">Local Time: --</div>
-        
-        <div class="metric-row"><span>Humidity</span><b id="detail-humidity">--</b></div>
-        <div class="metric-row"><span>Wind Metrics</span><b id="detail-wind">--</b></div>
-        <div class="metric-row"><span>Apparent Temp</span><b id="detail-feels">--</b></div>
-        <div class="metric-row"><span>UV Index</span><b id="detail-uv">--</b></div>
-        <div class="metric-row"><span>Precip Probability</span><b id="detail-pop">0%</b></div>
-    </div>
-
-    <!-- Col 4 Top: Key West Cam + Global Emergency Terminal Stack -->
-    <div class="video-double-stack">
-        <!-- Key West Live Cam -->
-        <div class="box" style="padding: 0; background: #000;">
-            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/8Rw-tZTeBjU?autoplay=1&mute=1&modestbranding=1&rel=0" style="border: none;" allowfullscreen></iframe>
+        <!-- Anthem AZ Temp -->
+        <div class="box">
+            <div class="box-title">Anthem AZ</div>
+            <div id="az-temp" class="big-number">--°</div>
         </div>
-        <!-- High Priority Global Alerts -->
-        <div class="box" style="border-color: #ff3b3b; background: #0a0101;">
-            <div class="section-title" style="color: #ff3b3b; display: flex; align-items: center; gap: 6px;">
-                <span style="display:inline-block; width:8px; height:8px; background:#ff3b3b; border-radius:50%; animation: pulse 1s infinite;"></span>
-                Global Emergency Monitors
-            </div>
-            <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 2px;">
-                <div id="news-ticker">Scanning global security network streams...</div>
-            </div>
+
+        <!-- Riyadh Saudi Arabia Temp -->
+        <div class="box">
+            <div class="box-title">Riyadh Saudi</div>
+            <div id="riyadh-temp" class="big-number">--°</div>
         </div>
-    </div>
 
-
-    <!-- ==================== BOTTOM ROW (28% Height) ==================== -->
-    
-    <!-- Col 1 Bottom: Hourly Rain Panel -->
-    <div class="box">
-        <div class="section-title">Hourly Rain & Wind (33442)</div>
-        <div id="hourly-rain-container" style="display: flex; justify-content: space-between; align-items: center; height: 100%; text-align: center;">
-            <div style="color: #b0b0b0; font-size: 13px; width: 100%;">Loading timelines...</div>
+        <!-- St Croix USVI Temp -->
+        <div class="box">
+            <div class="box-title">St Croix USVI</div>
+            <div id="stcroix-temp" class="big-number">--°</div>
         </div>
-    </div>
-
-    <!-- Col 2 Bottom: Hurricane Info (UPGRADED REAL-TIME ENGINE) -->
-    <div class="box" style="justify-content: center; text-align: center; padding: 8px;">
-        <div class="section-title" style="margin-bottom: 3px;">Hurricane Tracker</div>
-        <div id="caneCountdown" style="font-size: 11px; color: #b0b0b0;">Analyzing Basin...</div>
-        <div id="caneStormList" style="font-size: 11px; color: #ffd84d; margin: 3px 0; max-height: 28px; overflow: hidden; line-height: 1.2;">Checking NOAA feeds...</div>
-        <div id="caneStatus" class="alert-quiet" style="font-size: 15px; font-weight: bold;">✓ Clear</div>
-    </div>
-
-    <!-- Col 3 & 4 Bottom: Shared Multi-City Graph -->
-    <div class="box" style="grid-column: span 2; padding: 6px; position: relative;">
-        <canvas id="multiCityChart" style="width: 100%; height: 100%; max-height: 100%;"></canvas>
     </div>
 
 </div>
 
 <script>
-let telemetryChart = null;
 let newsItems = [];
 let newsIndex = 0;
 
-function getTempColor(t){
-    if(t >= 90) return "hot";
-    if(t >= 80) return "warm";
-    if(t >= 70) return "mid";
-    return "cool";
+/* EXACT TEMPERATURE COLOR SYSTEM AS SPECIFIED IN IMAGE 3 */
+function getTempColorClass(t) {
+    if (t <= 59) return "t-cold";   /* White */
+    if (t <= 69) return "t-cool";   /* Light Blue */
+    if (t <= 79) return "t-yellow"; /* Yellow */
+    if (t <= 89) return "t-orange"; /* Orange */
+    if (t <= 99) return "t-lred";   /* Light Red */
+    return "t-bred";                /* Bright Red >= 100 */
 }
 
-// FETCH LIVE WORLD EMERGENCY/BREAKING ALERTS
-async function fetchGlobalNews() {
+/* UPDATE LOCAL TIME DISPLAY */
+function updateClock() {
+    const timeStr = new Date().toLocaleTimeString("en-US", {
+        timeZone: "America/New_York",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+    document.getElementById("local-time").innerText = timeStr.replace(/^0/, '');
+}
+setInterval(updateClock, 1000);
+
+/* FETCH GLOBAL NEWS HEADLINES */
+async function fetchNews() {
     try {
         let res = await fetch("https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ffeeds.bbci.co.uk%2Fnews%2Fworld%2Frss.xml");
         let data = await res.json();
         if (data.items && data.items.length > 0) {
-            newsItems = data.items.map(item => item.title);
+            newsItems = data.items.map(i => i.title);
             cycleNews();
         }
     } catch(e) {
-        newsItems = [
-            "🚨 SECURITY MONITOR: Critical global feeds active and tracking.",
-            "⚠️ PACIFIC BASIN: Geoseismic monitoring tracking minor pressure fluctuations.",
-            "📡 METEOROLOGICAL DISRUPTION: Checking global extreme heat anomaly alerts."
-        ];
+        newsItems = ["US & World Events updates stream active."];
         cycleNews();
     }
 }
 
 function cycleNews() {
     if (newsItems.length === 0) return;
-    const container = document.getElementById("news-ticker");
-    container.style.opacity = 0;
+    const ticker = document.getElementById("news-ticker");
+    ticker.style.opacity = 0;
     setTimeout(() => {
-        container.innerHTML = newsItems[newsIndex];
-        container.style.opacity = 1;
+        ticker.innerText = newsItems[newsIndex];
+        ticker.style.opacity = 1;
         newsIndex = (newsIndex + 1) % newsItems.length;
     }, 400);
 }
-setInterval(cycleNews, 10000);
+setInterval(cycleNews, 12000);
 
-/* REAL-TIME HURRICANE & TROPICAL THREAT TRACKER ENGINE */
-async function checkTropicThreats() {
+/* HURRICANE TRACKER ENGINE */
+async function checkHurricaneTracker() {
     const statusBox = document.getElementById("caneStatus");
     const stormListBox = document.getElementById("caneStormList");
     const countdownBox = document.getElementById("caneCountdown");
 
-    // 1. Season Countdown Calculation
     const now = new Date();
     const currentYear = now.getFullYear();
-    let seasonStart = new Date(currentYear, 5, 1);  // June 1st
-    let seasonEnd = new Date(currentYear, 10, 30, 23, 59, 59); // Nov 30th
+    let seasonStart = new Date(currentYear, 5, 1);
+    let seasonEnd = new Date(currentYear, 10, 30, 23, 59, 59);
 
     if (now >= seasonStart && now <= seasonEnd) {
         const daysLeft = Math.ceil((seasonEnd - now) / (1000 * 60 * 60 * 24));
-        countdownBox.innerHTML = `⏳ Season Active (${daysLeft}d remaining)`;
+        countdownBox.innerHTML = `⏳ Season Ends in ${daysLeft} Days`;
     } else {
         if (now > seasonEnd) seasonStart = new Date(currentYear + 1, 5, 1);
         const daysUntil = Math.ceil((seasonStart - now) / (1000 * 60 * 60 * 24));
-        countdownBox.innerHTML = `⏳ ${daysUntil}d until June 1st Season Start`;
+        countdownBox.innerHTML = `⏳ ${daysUntil} Days Until Season Start`;
     }
 
     try {
-        // 2. Fetch Active Basin Tropical Alerts (Atlantic & Gulf)
         let alertUrl = "https://api.weather.gov/alerts/active?event=Tropical%20Storm%20Warning,Tropical%20Storm%20Watch,Hurricane%20Warning,Hurricane%20Watch,Hurricane%20Local%20Statement";
         let res = await fetch(alertUrl);
         let data = await res.json();
         let features = data.features || [];
 
-        // 3. Fetch Specific Coastal Broward Alerts (Zone FLZ068 / ZIP 33442)
         let localRes = await fetch("https://api.weather.gov/alerts/active?zone=FLZ068");
         let localData = await localRes.json();
         let localFeatures = localData.features || [];
 
         if (localFeatures.length > 0) {
-            let primaryAlert = localFeatures[0].properties.event;
             statusBox.className = "alert-active";
-            statusBox.innerHTML = `🚨 33442: ${primaryAlert.toUpperCase()}`;
+            statusBox.innerHTML = `🚨 Local Warning Active!`;
         } else if (features.length > 0) {
-            statusBox.className = "alert-warning";
-            statusBox.innerHTML = `⚠️ Active Tropical System in Basin`;
+            statusBox.className = "alert-active";
+            statusBox.style.color = "#ff8c1a";
+            statusBox.innerHTML = `⚠️ Active System Tracked`;
         } else {
             statusBox.className = "alert-quiet";
             statusBox.innerHTML = `✓ Basin Quiet`;
         }
 
-        // 4. Query Tropical Summaries / Active Storm Names
         if (features.length > 0) {
             let uniqueEvents = [...new Set(features.map(f => f.properties.event))];
-            stormListBox.innerHTML = "🌀 " + uniqueEvents.slice(0, 2).join(" • ");
+            stormListBox.innerHTML = "🌀 " + uniqueEvents.slice(0, 1).join("");
         } else {
-            stormListBox.innerHTML = "🌀 No Active Named Threats";
+            stormListBox.innerHTML = "🌀 No Active Threat";
         }
-
-    } catch (e) {
+    } catch(e) {
         statusBox.className = "alert-quiet";
-        statusBox.innerHTML = "✓ Basin Quiet";
-        stormListBox.innerHTML = "🌀 Monitoring Active";
+        statusBox.innerHTML = `✓ Basin Quiet`;
     }
 }
 
-function renderTelemetryGraph(hours, dfb, az, vi, riyadh) {
-    const ctx = document.getElementById('multiCityChart').getContext('2d');
-    if (telemetryChart) telemetryChart.destroy();
+/* FETCH ALL WEATHER DATA */
+async function fetchWeatherData() {
+    updateClock();
+    checkHurricaneTracker();
 
-    telemetryChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: hours,
-            datasets: [
-                { label: 'Deerfield', data: dfb, borderColor: '#45f3ff', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, tension: 0.2 },
-                { label: 'Anthem AZ', data: az, borderColor: '#ffd84d', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, tension: 0.2 },
-                { label: 'St. Croix', data: vi, borderColor: '#00ff66', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, tension: 0.2 },
-                { label: 'Riyadh', data: riyadh, borderColor: '#ff8c1a', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, tension: 0.2 }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: true, labels: { color: '#fff', font: { size: 10 }, boxWidth: 10 }, position: 'top' }
-            },
-            scales: {
-                x: { grid: { display: false }, ticks: { color: '#b0b0b0', font: { size: 8 }, maxTicksLimit: 6 } },
-                y: { grid: { color: '#111' }, ticks: { color: '#b0b0b0', font: { size: 9 } } }
+    try {
+        // 1. Deerfield Beach (Local)
+        let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current=temperature_2m&hourly=temperature_2m,precipitation_probability&temperature_unit=fahrenheit&timezone=America/New_York&forecast_days=1");
+        let d1 = await r1.json();
+
+        if (d1.current) {
+            let temp = Math.round(d1.current.temperature_2m);
+            let localEl = document.getElementById("local-temp");
+            localEl.innerText = temp + "°";
+            localEl.className = "top-big-temp " + getTempColorClass(temp);
+        }
+
+        // 6-Hour Hourly Forecast Builder
+        if (d1.hourly) {
+            let container = document.getElementById("hourly-container");
+            container.innerHTML = "";
+            
+            // Extract next 6 hours starting from current hour
+            let currentHourIdx = new Date().getHours();
+            for (let i = 0; i < 6; i++) {
+                let idx = (currentHourIdx + i) % 24;
+                let timeRaw = d1.hourly.time[idx].split("T")[1];
+                let hourNum = parseInt(timeRaw.split(":")[0]);
+                let ampm = hourNum >= 12 ? 'PM' : 'AM';
+                let displayHour = (hourNum % 12 || 12) + ampm;
+                
+                let hTemp = Math.round(d1.hourly.temperature_2m[idx]);
+                let pop = d1.hourly.precipitation_probability[idx];
+                
+                let hourBlock = document.createElement("div");
+                hourBlock.className = "hourly-item";
+                hourBlock.innerHTML = `
+                    <div class="hourly-time">${displayHour}</div>
+                    <div class="hourly-temp ${getTempColorClass(hTemp)}">${hTemp}°</div>
+                    <div class="hourly-pop">☔${pop}%</div>
+                `;
+                container.appendChild(hourBlock);
             }
         }
-    });
-}
 
-async function executeCoreDataPipeline(){
-    checkTropicThreats();
-
-    // DFB METRICS ENGINE
-    try {
-        let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,uv_index&hourly=temperature_2m,precipitation_probability,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America/New_York&forecast_days=1");
-        let d1 = await r1.json();
-        
-        if (d1.current) {
-            document.getElementById("dfb-big-temp").className = "big-temp-display " + getTempColor(d1.current.temperature_2m);
-            document.getElementById("dfb-big-temp").innerHTML = Math.round(d1.current.temperature_2m) + "°F";
-            document.getElementById("detail-humidity").innerHTML = d1.current.relative_humidity_2m + "%";
-            document.getElementById("detail-wind").innerHTML = Math.round(d1.current.wind_speed_10m) + " mph";
-            document.getElementById("detail-feels").innerHTML = Math.round(d1.current.apparent_temperature) + "°F";
-            document.getElementById("detail-uv").innerHTML = d1.current.uv_index;
-        }
-        document.getElementById("dfb-updated-time").innerHTML = "Local: " + new Date().toLocaleTimeString("en-US", {timeZone: "America/New_York", hour: "2-digit", minute: "2-digit"});
-
-        if (d1.hourly) {
-            let rainContainer = document.getElementById("hourly-rain-container");
-            rainContainer.innerHTML = "";
-            let steps = [2, 5, 8, 11, 14]; 
-            steps.forEach(idx => {
-                let timeStr = d1.hourly.time[idx].split("T")[1];
-                let pop = d1.hourly.precipitation_probability[idx];
-                let wSpeed = Math.round(d1.hourly.wind_speed_10m[idx]);
-                
-                let block = document.createElement("div");
-                block.style.flex = "1";
-                block.innerHTML = `
-                    <div style="font-size: 11px; color: #888;">${timeStr}</div>
-                    <div style="font-size: 14px; font-weight: bold; color: #66ccff; margin: 2px 0;">${pop}%</div>
-                    <div style="font-size: 11px; color: #ffd84d;">${wSpeed}m</div>
-                `;
-                rainContainer.appendChild(block);
-            });
-            document.getElementById("detail-pop").innerHTML = d1.hourly.precipitation_probability[0] + "%";
-        }
-
-        // BACKGROUND TELEMETRY FETCHES FOR COMPOSITE GRAPH
-        let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current=temperature_2m&hourly=temperature_2m&temperature_unit=fahrenheit&timezone=America/Phoenix&forecast_days=1");
+        // 2. Anthem AZ
+        let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current=temperature_2m&temperature_unit=fahrenheit");
         let d2 = await r2.json();
-
-        let r3 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=17.7466&longitude=-64.7031&current=temperature_2m&hourly=temperature_2m&temperature_unit=fahrenheit&timezone=America/Port_of_Spain&forecast_days=1");
-        let d3 = await r3.json();
-
-        let r4 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=24.6877&longitude=46.7219&current=temperature_2m&hourly=temperature_2m&temperature_unit=fahrenheit&timezone=Asia/Riyadh&forecast_days=1");
-        let d4 = await r4.json();
-
-        if (d1.hourly && d2.hourly && d3.hourly && d4.hourly) {
-            let timeLabels = d1.hourly.time.map(t => t.split('T')[1]);
-            renderTelemetryGraph(timeLabels, d1.hourly.temperature_2m, d2.hourly.temperature_2m, d3.hourly.temperature_2m, d4.hourly.temperature_2m);
+        if (d2.current) {
+            let temp = Math.round(d2.current.temperature_2m);
+            let azEl = document.getElementById("az-temp");
+            azEl.innerText = temp + "°";
+            azEl.className = "big-number " + getTempColorClass(temp);
         }
-    } catch (error) {
-        console.log("Telemetry fetch pipeline holding for network...", error);
+
+        // 3. Riyadh Saudi Arabia
+        let r3 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=24.6877&longitude=46.7219&current=temperature_2m&temperature_unit=fahrenheit");
+        let d3 = await r3.json();
+        if (d3.current) {
+            let temp = Math.round(d3.current.temperature_2m);
+            let riyadhEl = document.getElementById("riyadh-temp");
+            riyadhEl.innerText = temp + "°";
+            riyadhEl.className = "big-number " + getTempColorClass(temp);
+        }
+
+        // 4. St Croix USVI
+        let r4 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=17.7466&longitude=-64.7031&current=temperature_2m&temperature_unit=fahrenheit");
+        let d4 = await r4.json();
+        if (d4.current) {
+            let temp = Math.round(d4.current.temperature_2m);
+            let stcroixEl = document.getElementById("stcroix-temp");
+            stcroixEl.innerText = temp + "°";
+            stcroixEl.className = "big-number " + getTempColorClass(temp);
+        }
+
+    } catch(e) {
+        console.log("Holding for next update cycle...", e);
     }
 }
 
-// INITIALIZE SYSTEM ENGINE
-executeCoreDataPipeline();
-fetchGlobalNews();
-setInterval(executeCoreDataPipeline, 300000); // 5 min interval refresh loops
-setInterval(fetchGlobalNews, 900000); // 15 min global news stream query updates
+/* INITIALIZE PIPELINES */
+fetchWeatherData();
+fetchNews();
+
+setInterval(fetchWeatherData, 300000); // 5 min weather refresh
+setInterval(fetchNews, 900000);        // 15 min news refresh
 </script>
 
 </body>
