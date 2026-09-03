@@ -33,7 +33,7 @@ body {
     pointer-events: none;
 }
 
-/* MASTER GRID LAYOUT MATCHING IMAGE 3 SKETCH */
+/* MASTER GRID LAYOUT */
 .grid-container {
     display: grid;
     grid-template-rows: 18% 57% 25%; /* Top, Center, Bottom Rows */
@@ -41,7 +41,7 @@ body {
     gap: 8px;
 }
 
-/* ROW 1: TOP BANNER (TIME | HOURLY FORECAST | TEMP) */
+/* ROW 1: TOP BANNER */
 .top-row {
     display: grid;
     grid-template-columns: 18% 64% 18%;
@@ -49,7 +49,7 @@ body {
     height: 100%;
 }
 
-/* ROW 2: CENTER (WINDY MAP | HURRICANE + NEWS STACK) */
+/* ROW 2: CENTER */
 .center-row {
     display: grid;
     grid-template-columns: 68% 32%;
@@ -64,7 +64,7 @@ body {
     height: 100%;
 }
 
-/* ROW 3: BOTTOM (2 WEBCAMS | 3 CITY TEMPS) */
+/* ROW 3: BOTTOM */
 .bottom-row {
     display: grid;
     grid-template-columns: 24% 24% 17.3% 17.3% 17.3%;
@@ -97,16 +97,45 @@ body {
 }
 
 /* MAXIMIZED BIG NUMBERS FOR TIME AND TEMPERATURES */
-.big-number {
-    font-weight: 900;
-    line-height: 0.95;
-    font-size: clamp(28px, 6vh, 60px);
-}
-
-.top-big-temp, .top-big-time {
+.top-big-time {
     font-size: clamp(32px, 7.5vh, 75px);
     font-weight: 900;
     line-height: 0.9;
+}
+
+/* SIDE-BY-SIDE TEMP & MUGGINESS INDEX DISPLAY */
+.temp-mi-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.temp-mi-values {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    line-height: 0.95;
+    font-size: clamp(20px, 4.2vh, 48px);
+}
+
+.slash-divider {
+    color: #666;
+    margin: 0 4px;
+    font-weight: 400;
+}
+
+.temp-mi-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+    margin-top: 3px;
+    font-size: clamp(9px, 1.3vh, 12px);
+    color: #aaa;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 /* HOURLY FORECAST DISPLAY BLOCK */
@@ -127,7 +156,7 @@ body {
 }
 
 .hourly-time { font-size: 11px; color: #aaa; }
-.hourly-temp { font-size: 18px; font-weight: bold; margin: 2px 0; }
+.hourly-temp { font-size: 16px; font-weight: bold; margin: 2px 0; }
 .hourly-pop { font-size: 12px; color: #66ccff; font-weight: bold; }
 
 /* NEWS TICKER */
@@ -179,10 +208,20 @@ body {
             </div>
         </div>
 
-        <!-- Local Temp -->
+        <!-- Local Temp & M.I. -->
         <div class="box">
-            <div class="box-title">Local Temp</div>
-            <div id="local-temp" class="top-big-temp">--°</div>
+            <div class="box-title">Deerfield Beach</div>
+            <div id="local-temp-box" class="temp-mi-container">
+                <div class="temp-mi-values">
+                    <span id="local-temp">--</span>
+                    <span class="slash-divider">/</span>
+                    <span id="local-mi">--</span>
+                </div>
+                <div class="temp-mi-labels">
+                    <span>Temp</span>
+                    <span>M.I.</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -228,22 +267,52 @@ body {
             <iframe width="100%" height="100%" src="https://www.youtube.com/embed/f9pMVLoJfyE?autoplay=1&mute=1&modestbranding=1&rel=0" style="border: none;" allowfullscreen></iframe>
         </div>
 
-        <!-- Anthem AZ Temp -->
+        <!-- Anthem AZ Temp & M.I. -->
         <div class="box">
             <div class="box-title">Anthem AZ</div>
-            <div id="az-temp" class="big-number">--°</div>
+            <div class="temp-mi-container">
+                <div class="temp-mi-values">
+                    <span id="az-temp">--</span>
+                    <span class="slash-divider">/</span>
+                    <span id="az-mi">--</span>
+                </div>
+                <div class="temp-mi-labels">
+                    <span>Temp</span>
+                    <span>M.I.</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Riyadh Saudi Arabia Temp -->
+        <!-- Riyadh Saudi Arabia Temp & M.I. -->
         <div class="box">
             <div class="box-title">Riyadh Saudi</div>
-            <div id="riyadh-temp" class="big-number">--°</div>
+            <div class="temp-mi-container">
+                <div class="temp-mi-values">
+                    <span id="riyadh-temp">--</span>
+                    <span class="slash-divider">/</span>
+                    <span id="riyadh-mi">--</span>
+                </div>
+                <div class="temp-mi-labels">
+                    <span>Temp</span>
+                    <span>M.I.</span>
+                </div>
+            </div>
         </div>
 
-        <!-- St Croix USVI Temp -->
+        <!-- St Croix USVI Temp & M.I. -->
         <div class="box">
             <div class="box-title">St Croix USVI</div>
-            <div id="stcroix-temp" class="big-number">--°</div>
+            <div class="temp-mi-container">
+                <div class="temp-mi-values">
+                    <span id="stcroix-temp">--</span>
+                    <span class="slash-divider">/</span>
+                    <span id="stcroix-mi">--</span>
+                </div>
+                <div class="temp-mi-labels">
+                    <span>Temp</span>
+                    <span>M.I.</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -253,7 +322,7 @@ body {
 let newsItems = [];
 let newsIndex = 0;
 
-/* EXACT TEMPERATURE COLOR SYSTEM AS SPECIFIED IN IMAGE 3 */
+/* EXACT TEMPERATURE COLOR SYSTEM */
 function getTempColorClass(t) {
     if (t <= 59) return "t-cold";   /* White */
     if (t <= 69) return "t-cool";   /* Light Blue */
@@ -355,6 +424,21 @@ async function checkHurricaneTracker() {
     }
 }
 
+/* UTILITY TO UPDATE TEMP & M.I. DISPLAY ELEMENTS WITH COLORS */
+function applyTempAndMI(tempId, miId, tempVal, miVal) {
+    let tEl = document.getElementById(tempId);
+    let miEl = document.getElementById(miId);
+
+    let tRound = Math.round(tempVal);
+    let miRound = Math.round(miVal);
+
+    tEl.innerText = tRound;
+    tEl.className = getTempColorClass(tRound);
+
+    miEl.innerText = miRound;
+    miEl.className = getTempColorClass(miRound);
+}
+
 /* FETCH ALL WEATHER DATA */
 async function fetchWeatherData() {
     updateClock();
@@ -362,14 +446,11 @@ async function fetchWeatherData() {
 
     try {
         // 1. Deerfield Beach (Local)
-        let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current=temperature_2m&hourly=temperature_2m,precipitation_probability&temperature_unit=fahrenheit&timezone=America/New_York&forecast_days=1");
+        let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current=temperature_2m,apparent_temperature&hourly=temperature_2m,precipitation_probability&temperature_unit=fahrenheit&timezone=America/New_York&forecast_days=1");
         let d1 = await r1.json();
 
         if (d1.current) {
-            let temp = Math.round(d1.current.temperature_2m);
-            let localEl = document.getElementById("local-temp");
-            localEl.innerText = temp + "°";
-            localEl.className = "top-big-temp " + getTempColorClass(temp);
+            applyTempAndMI("local-temp", "local-mi", d1.current.temperature_2m, d1.current.apparent_temperature);
         }
 
         // 6-Hour Hourly Forecast Builder
@@ -377,7 +458,6 @@ async function fetchWeatherData() {
             let container = document.getElementById("hourly-container");
             container.innerHTML = "";
             
-            // Extract next 6 hours starting from current hour
             let currentHourIdx = new Date().getHours();
             for (let i = 0; i < 6; i++) {
                 let idx = (currentHourIdx + i) % 24;
@@ -401,33 +481,24 @@ async function fetchWeatherData() {
         }
 
         // 2. Anthem AZ
-        let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current=temperature_2m&temperature_unit=fahrenheit");
+        let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current=temperature_2m,apparent_temperature&temperature_unit=fahrenheit");
         let d2 = await r2.json();
         if (d2.current) {
-            let temp = Math.round(d2.current.temperature_2m);
-            let azEl = document.getElementById("az-temp");
-            azEl.innerText = temp + "°";
-            azEl.className = "big-number " + getTempColorClass(temp);
+            applyTempAndMI("az-temp", "az-mi", d2.current.temperature_2m, d2.current.apparent_temperature);
         }
 
         // 3. Riyadh Saudi Arabia
-        let r3 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=24.6877&longitude=46.7219&current=temperature_2m&temperature_unit=fahrenheit");
+        let r3 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=24.6877&longitude=46.7219&current=temperature_2m,apparent_temperature&temperature_unit=fahrenheit");
         let d3 = await r3.json();
         if (d3.current) {
-            let temp = Math.round(d3.current.temperature_2m);
-            let riyadhEl = document.getElementById("riyadh-temp");
-            riyadhEl.innerText = temp + "°";
-            riyadhEl.className = "big-number " + getTempColorClass(temp);
+            applyTempAndMI("riyadh-temp", "riyadh-mi", d3.current.temperature_2m, d3.current.apparent_temperature);
         }
 
         // 4. St Croix USVI
-        let r4 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=17.7466&longitude=-64.7031&current=temperature_2m&temperature_unit=fahrenheit");
+        let r4 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=17.7466&longitude=-64.7031&current=temperature_2m,apparent_temperature&temperature_unit=fahrenheit");
         let d4 = await r4.json();
         if (d4.current) {
-            let temp = Math.round(d4.current.temperature_2m);
-            let stcroixEl = document.getElementById("stcroix-temp");
-            stcroixEl.innerText = temp + "°";
-            stcroixEl.className = "big-number " + getTempColorClass(temp);
+            applyTempAndMI("stcroix-temp", "stcroix-mi", d4.current.temperature_2m, d4.current.apparent_temperature);
         }
 
     } catch(e) {
