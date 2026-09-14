@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather & Calendar Dashboard</title>
-    <!-- ICAL Parser for Cozi Feed -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.5.0/ical.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -133,52 +131,19 @@
             border: none;
         }
 
-        /* Cozi Calendar Right Panel */
+        /* Cozi Calendar Right Panel Frame */
         .calendar-box {
             grid-column: 2 / 3;
             grid-row: 1 / 4;
-            justify-content: flex-start;
-            align-items: stretch;
-            padding: 10px;
+            padding: 0;
             background-color: #080808;
             border: 2px solid #444444;
         }
-        .calendar-title {
-            font-size: 22px;
-            font-weight: bold;
-            color: #FFD700;
-            text-align: center;
-            border-bottom: 2px solid #333333;
-            padding-bottom: 6px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-        .event-list {
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .event-item {
-            background-color: #181818;
-            border-left: 4px solid #00FFFF;
-            padding: 8px;
-            border-radius: 4px;
-        }
-        .event-date {
-            font-size: 16px;
-            color: #FFD700;
-            font-weight: bold;
-        }
-        .event-time {
-            font-size: 14px;
-            color: #AAAAAA;
-        }
-        .event-summary {
-            font-size: 18px;
-            color: #FFFFFF;
-            font-weight: bold;
-            margin-top: 2px;
+        .cozi-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: #FFFFFF;
         }
 
         /* Blinking Alert Animation for Weather Warnings */
@@ -240,18 +205,13 @@
             </div>
         </div>
 
-        <!-- Right Side Column: 7-Day Cozi Calendar -->
+        <!-- Right Side Column: Embedded Cozi Web View -->
         <div class="box calendar-box">
-            <div class="calendar-title">Upcoming Schedule</div>
-            <div class="event-list" id="calendar-events">
-                <div style="text-align: center; color: #888888; font-size: 16px; margin-top: 20px;">Loading Cozi Calendar...</div>
-            </div>
+            <iframe class="cozi-frame" src="https://my.cozi.com/"></iframe>
         </div>
     </div>
 
     <script>
-        const COZI_URL = "https://rest.cozi.com/api/ext/1103/0a1edbab-8e64-4ed6-b2da-cf1c4242620f/icalendar/feed/feed.ics";
-
         // Temperature Color Scaling
         function getTempColor(temp) {
             if (temp <= 59) return "#FFFFFF"; // White
@@ -367,70 +327,6 @@
         }
         setInterval(fetchRemoteTemps, 600000);
         fetchRemoteTemps();
-
-        // Fetch & Parse Cozi iCal Feed
-        async function fetchCoziCalendar() {
-            try {
-                // Use corsproxy.io to bypass browser CORS security cleanly
-                const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(COZI_URL);
-                const response = await fetch(proxyUrl);
-                const icsText = await response.text();
-
-                const jcalData = ICAL.parse(icsText);
-                const comp = new ICAL.Component(jcalData);
-                const vevents = comp.getAllSubcomponents('vevent');
-
-                const now = new Date();
-                const sevenDaysLater = new Date();
-                sevenDaysLater.setDate(now.getDate() + 7);
-
-                let upcomingEvents = [];
-
-                vevents.forEach(vevent => {
-                    const event = new ICAL.Event(vevent);
-                    const startDate = event.startDate.toJSDate();
-
-                    if (startDate >= now && startDate <= sevenDaysLater) {
-                        upcomingEvents.push({
-                            summary: event.summary,
-                            startDate: startDate,
-                            isAllDay: event.startDate.isDate
-                        });
-                    }
-                });
-
-                // Sort chronologically
-                upcomingEvents.sort((a, b) => a.startDate - b.startDate);
-
-                const listContainer = document.getElementById("calendar-events");
-                listContainer.innerHTML = "";
-
-                if (upcomingEvents.length === 0) {
-                    listContainer.innerHTML = `<div style="text-align: center; color: #888888; font-size: 16px; margin-top: 20px;">No events scheduled for the next 7 days.</div>`;
-                    return;
-                }
-
-                upcomingEvents.forEach(evt => {
-                    const dateStr = evt.startDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
-                    const timeStr = evt.isAllDay ? "All Day" : evt.startDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-
-                    const item = document.createElement("div");
-                    item.className = "event-item";
-                    item.innerHTML = `
-                        <div class="event-date">${dateStr}</div>
-                        <div class="event-time">${timeStr}</div>
-                        <div class="event-summary">${evt.summary}</div>
-                    `;
-                    listContainer.appendChild(item);
-                });
-
-            } catch (err) {
-                console.error("Cozi calendar fetch failed:", err);
-                document.getElementById("calendar-events").innerHTML = `<div style="text-align: center; color: #FF4444; font-size: 14px; margin-top: 20px;">Unable to load Cozi feed.</div>`;
-            }
-        }
-        setInterval(fetchCoziCalendar, 900000); // Refresh every 15 mins
-        fetchCoziCalendar();
     </script>
 </body>
 </html>
