@@ -371,8 +371,8 @@
         // Fetch & Parse Cozi iCal Feed
         async function fetchCoziCalendar() {
             try {
-                // Use a CORS proxy to allow loading the feed directly in the browser
-                const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(COZI_URL);
+                // Use corsproxy.io to bypass browser CORS security cleanly
+                const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(COZI_URL);
                 const response = await fetch(proxyUrl);
                 const icsText = await response.text();
 
@@ -399,7 +399,7 @@
                     }
                 });
 
-                // Sort chronological
+                // Sort chronologically
                 upcomingEvents.sort((a, b) => a.startDate - b.startDate);
 
                 const listContainer = document.getElementById("calendar-events");
