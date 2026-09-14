@@ -1,518 +1,436 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Princess's Weather Command Station</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather & Calendar Dashboard</title>
+    <!-- ICAL Parser for Cozi Feed -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.5.0/ical.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #000000;
+            color: #FFFFFF;
+            font-family: Arial, Helvetica, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            padding: 5px;
+        }
 
-<style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+        /* Main Container Layout */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            grid-template-rows: 120px 1fr 140px;
+            gap: 6px;
+            height: 100vh;
+        }
 
-body {
-    background: #000000;
-    color: #ffffff;
-    font-family: Arial, sans-serif;
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden;
-    padding: 8px;
-}
+        /* General Box Styling */
+        .box {
+            background-color: #111111;
+            border: 2px solid #333333;
+            border-radius: 6px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
 
-/* PRINCESS LOGO FLOATING OVERLAY */
-#princess {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    height: 55px;
-    width: auto;
-    z-index: 99999;
-    pointer-events: none;
-}
+        /* Top Row Layout */
+        .top-row-container {
+            grid-column: 1 / 2;
+            display: grid;
+            grid-template-columns: 1fr 2.5fr 1fr;
+            gap: 6px;
+        }
 
-/* MASTER GRID LAYOUT */
-.grid-container {
-    display: grid;
-    grid-template-rows: 18% 57% 25%; /* Top, Center, Bottom Rows */
-    height: 100vh;
-    gap: 8px;
-}
+        /* Maximize Large Numbers with White Outline */
+        .big-number {
+            font-size: 68px;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -1px;
+            -webkit-text-stroke: 1.5px #FFFFFF;
+            text-shadow: 0 0 3px rgba(255, 255, 255, 0.4);
+        }
 
-/* ROW 1: TOP BANNER */
-.top-row {
-    display: grid;
-    grid-template-columns: 18% 64% 18%;
-    gap: 8px;
-    height: 100%;
-}
+        /* Hourly Forecast Styling */
+        .hourly-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            align-items: center;
+        }
+        .hourly-item {
+            text-align: center;
+        }
+        .hourly-time {
+            font-size: 14px;
+            color: #AAAAAA;
+            margin-bottom: 2px;
+        }
+        .hourly-temp {
+            font-size: 26px;
+            font-weight: bold;
+            -webkit-text-stroke: 0.8px #FFFFFF;
+        }
+        .hourly-pop {
+            font-size: 13px;
+            color: #00FFFF;
+            margin-top: 2px;
+        }
 
-/* ROW 2: CENTER */
-.center-row {
-    display: grid;
-    grid-template-columns: 68% 32%;
-    gap: 8px;
-    height: 100%;
-}
+        /* Map Section */
+        .map-box {
+            grid-column: 1 / 2;
+            grid-row: 2 / 3;
+            padding: 0;
+        }
+        iframe.windy-map {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
 
-.right-stack {
-    display: grid;
-    grid-template-rows: 55% 45%;
-    gap: 8px;
-    height: 100%;
-}
+        /* Bottom Row Left Section */
+        .bottom-left-container {
+            grid-column: 1 / 2;
+            grid-row: 3 / 4;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 6px;
+        }
 
-/* ROW 3: BOTTOM */
-.bottom-row {
-    display: grid;
-    grid-template-columns: 24% 24% 17.3% 17.3% 17.3%;
-    gap: 8px;
-    height: 100%;
-}
+        .city-label {
+            font-size: 14px;
+            color: #CCCCCC;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
 
-/* COMMON CARD PANEL STYLING */
-.box {
-    background: #050505;
-    border: 2px solid #45f3ff;
-    border-radius: 8px;
-    padding: 6px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    height: 100%;
-}
+        .medium-temp {
+            font-size: 42px;
+            font-weight: bold;
+            -webkit-text-stroke: 1px #FFFFFF;
+        }
 
-.box-title {
-    font-size: 11px;
-    font-weight: bold;
-    color: #45f3ff;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 2px;
-}
+        /* YouTube Container */
+        .yt-box {
+            padding: 0;
+        }
+        .yt-box iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
 
-/* MAXIMIZED BIG NUMBERS FOR TIME AND TEMPERATURES */
-.top-big-time {
-    font-size: clamp(32px, 7.5vh, 75px);
-    font-weight: 900;
-    line-height: 0.9;
-}
+        /* Cozi Calendar Right Panel */
+        .calendar-box {
+            grid-column: 2 / 3;
+            grid-row: 1 / 4;
+            justify-content: flex-start;
+            align-items: stretch;
+            padding: 10px;
+            background-color: #080808;
+            border: 2px solid #444444;
+        }
+        .calendar-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #FFD700;
+            text-align: center;
+            border-bottom: 2px solid #333333;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .event-list {
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .event-item {
+            background-color: #181818;
+            border-left: 4px solid #00FFFF;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .event-date {
+            font-size: 16px;
+            color: #FFD700;
+            font-weight: bold;
+        }
+        .event-time {
+            font-size: 14px;
+            color: #AAAAAA;
+        }
+        .event-summary {
+            font-size: 18px;
+            color: #FFFFFF;
+            font-weight: bold;
+            margin-top: 2px;
+        }
 
-/* SIDE-BY-SIDE TEMP & MUGGINESS INDEX DISPLAY */
-.temp-mi-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-}
-
-.temp-mi-values {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    line-height: 0.95;
-    font-size: clamp(20px, 4.2vh, 48px);
-}
-
-.slash-divider {
-    color: #666;
-    margin: 0 4px;
-    font-weight: 400;
-}
-
-.temp-mi-labels {
-    display: flex;
-    justify-content: space-between;
-    width: 80%;
-    margin-top: 3px;
-    font-size: clamp(9px, 1.3vh, 12px);
-    color: #aaa;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-/* HOURLY FORECAST DISPLAY BLOCK */
-#hourly-container {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-}
-
-.hourly-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.hourly-time { font-size: 11px; color: #aaa; }
-.hourly-temp { font-size: 16px; font-weight: bold; margin: 2px 0; }
-.hourly-pop { font-size: 12px; color: #66ccff; font-weight: bold; }
-
-/* NEWS TICKER */
-#news-ticker {
-    font-size: 13px;
-    color: #ffffff;
-    font-weight: bold;
-    line-height: 1.3;
-    transition: opacity 0.4s ease-in-out;
-}
-
-/* DYNAMIC TEMPERATURE COLOR THRESHOLDS */
-.t-cold   { color: #ffffff !important; } /* <= 59 */
-.t-cool   { color: #66ccff !important; } /* 60 - 69 */
-.t-yellow { color: #ffd84d !important; } /* 70 - 79 */
-.t-orange { color: #ff8c1a !important; } /* 80 - 89 */
-.t-lred   { color: #ff6666 !important; } /* 90 - 99 */
-.t-bred   { color: #ff0000 !important; } /* >= 100 */
-
-.alert-active { color: #ff3333; font-weight: bold; animation: pulse 1.5s infinite; }
-.alert-quiet { color: #00ff66; }
-
-@keyframes pulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
-}
-</style>
+        /* Blinking Alert Animation for Weather Warnings */
+        @keyframes alert-blink {
+            0% { border-color: #FF0000; background-color: #330000; }
+            50% { border-color: #FFFF00; background-color: #111111; }
+            100% { border-color: #FF0000; background-color: #330000; }
+        }
+        .alert-active {
+            animation: alert-blink 1.5s infinite;
+        }
+    </style>
 </head>
 <body>
 
-<img id="princess" src="IMG_4728.png">
-
-<div class="grid-container">
-
-    <!-- ==================== TOP ROW ==================== -->
-    <div class="top-row">
-        <!-- Local Time -->
-        <div class="box">
-            <div class="box-title">Local Time</div>
-            <div id="local-time" class="top-big-time" style="color: #ffffff;">--:--</div>
-        </div>
-
-        <!-- 6-Hour Hourly Forecast -->
-        <div class="box">
-            <div class="box-title" style="margin-bottom: 4px;">6-Hour Local Forecast (Time / Temp / Rain %)</div>
-            <div id="hourly-container">
-                <div style="color: #666; font-size: 12px;">Loading forecast timeline...</div>
-            </div>
-        </div>
-
-        <!-- Local Temp & M.I. -->
-        <div class="box">
-            <div class="box-title">Deerfield Beach</div>
-            <div id="local-temp-box" class="temp-mi-container">
-                <div class="temp-mi-values">
-                    <span id="local-temp">--</span>
-                    <span class="slash-divider">/</span>
-                    <span id="local-mi">--</span>
-                </div>
-                <div class="temp-mi-labels">
-                    <span>Temp</span>
-                    <span>M.I.</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- ==================== CENTER ROW ==================== -->
-    <div class="center-row">
-        <!-- Windy Radar Map -->
-        <div class="box" style="padding: 0;">
-            <iframe 
-                src="https://embed.windy.com/embed2.html?lat=26.2972&lon=-80.1606&zoom=11&level=surface&overlay=rain&menu=&message=&marker=true&calendar=now&metricWind=default&metricTemp=%C2%B0F" 
-                width="100%" height="100%" style="border: none;">
-            </iframe>
-        </div>
-
-        <!-- Hurricane & News Stack -->
-        <div class="right-stack">
-            <!-- Hurricane Tracker -->
+    <div class="dashboard">
+        <!-- Top Row -->
+        <div class="top-row-container">
+            <!-- Local Time -->
             <div class="box">
-                <div class="box-title">Hurricane Tracker</div>
-                <div id="caneCountdown" style="font-size: 12px; color: #bbb; margin-top: 2px;">Analyzing Season...</div>
-                <div id="caneStormList" style="font-size: 12px; color: #ffd84d; margin: 4px 0;">Querying NOAA feeds...</div>
-                <div id="caneStatus" class="alert-quiet" style="font-size: 16px; font-weight: bold;">✓ Basin Quiet</div>
+                <div id="local-time" class="big-number" style="color: #FFFFFF;">--:--</div>
             </div>
 
-            <!-- Current Events Ticker -->
-            <div class="box" style="border-color: #ff8c1a;">
-                <div class="box-title" style="color: #ff8c1a;">US & World Headlines</div>
-                <div id="news-ticker" style="margin-top: 4px;">Fetching global news network...</div>
+            <!-- 6-Hour Hourly Forecast -->
+            <div class="box">
+                <div class="hourly-container" id="hourly-forecast">
+                    <!-- Dynamic hourly forecast rendered here -->
+                </div>
             </div>
-        </div>
-    </div>
 
-
-    <!-- ==================== BOTTOM ROW ==================== -->
-    <div class="bottom-row">
-        <!-- YouTube Cam 1 -->
-        <div class="box" style="padding: 0; background: #000;">
-            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/rdeoEeJ00xA?autoplay=1&mute=1&modestbranding=1&rel=0" style="border: none;" allowfullscreen></iframe>
-        </div>
-
-        <!-- YouTube Cam 2 -->
-        <div class="box" style="padding: 0; background: #000;">
-            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/f9pMVLoJfyE?autoplay=1&mute=1&modestbranding=1&rel=0" style="border: none;" allowfullscreen></iframe>
-        </div>
-
-        <!-- Anthem AZ Temp & M.I. -->
-        <div class="box">
-            <div class="box-title">Anthem AZ</div>
-            <div class="temp-mi-container">
-                <div class="temp-mi-values">
-                    <span id="az-temp">--</span>
-                    <span class="slash-divider">/</span>
-                    <span id="az-mi">--</span>
-                </div>
-                <div class="temp-mi-labels">
-                    <span>Temp</span>
-                    <span>M.I.</span>
-                </div>
+            <!-- Local Temp -->
+            <div class="box" id="local-temp-box">
+                <div id="local-temp" class="big-number">--°</div>
             </div>
         </div>
 
-        <!-- Riyadh Saudi Arabia Temp & M.I. -->
-        <div class="box">
-            <div class="box-title">Riyadh Saudi</div>
-            <div class="temp-mi-container">
-                <div class="temp-mi-values">
-                    <span id="riyadh-temp">--</span>
-                    <span class="slash-divider">/</span>
-                    <span id="riyadh-mi">--</span>
-                </div>
-                <div class="temp-mi-labels">
-                    <span>Temp</span>
-                    <span>M.I.</span>
-                </div>
+        <!-- Middle: Weather Map -->
+        <div class="box map-box">
+            <iframe class="windy-map" src="https://embed.windy.com/embed2.html?lat=26.318&lon=-80.099&detailLat=26.318&detailLon=-80.099&width=650&height=450&zoom=8&level=surface&overlay=radar&product=radar&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=%C2%B0F&radarRange=-1"></iframe>
+        </div>
+
+        <!-- Bottom Left Row -->
+        <div class="bottom-left-container">
+            <!-- YouTube Stream -->
+            <div class="box yt-box">
+                <iframe src="https://www.youtube.com/embed/rdeoEeJ00xA?autoplay=1&mute=1" allow="autoplay"></iframe>
+            </div>
+
+            <!-- Anthem, AZ Temp -->
+            <div class="box" id="anthem-temp-box">
+                <div class="city-label">Anthem, AZ</div>
+                <div id="anthem-temp" class="medium-temp">--°</div>
+            </div>
+
+            <!-- Riyadh Temp -->
+            <div class="box" id="riyadh-temp-box">
+                <div class="city-label">Riyadh</div>
+                <div id="riyadh-temp" class="medium-temp">--°</div>
             </div>
         </div>
 
-        <!-- St Croix USVI Temp & M.I. -->
-        <div class="box">
-            <div class="box-title">St Croix USVI</div>
-            <div class="temp-mi-container">
-                <div class="temp-mi-values">
-                    <span id="stcroix-temp">--</span>
-                    <span class="slash-divider">/</span>
-                    <span id="stcroix-mi">--</span>
-                </div>
-                <div class="temp-mi-labels">
-                    <span>Temp</span>
-                    <span>M.I.</span>
-                </div>
+        <!-- Right Side Column: 7-Day Cozi Calendar -->
+        <div class="box calendar-box">
+            <div class="calendar-title">Upcoming Schedule</div>
+            <div class="event-list" id="calendar-events">
+                <div style="text-align: center; color: #888888; font-size: 16px; margin-top: 20px;">Loading Cozi Calendar...</div>
             </div>
         </div>
     </div>
 
-</div>
+    <script>
+        const COZI_URL = "https://rest.cozi.com/api/ext/1103/0a1edbab-8e64-4ed6-b2da-cf1c4242620f/icalendar/feed/feed.ics";
 
-<script>
-let newsItems = [];
-let newsIndex = 0;
-
-/* EXACT TEMPERATURE COLOR SYSTEM */
-function getTempColorClass(t) {
-    if (t <= 59) return "t-cold";   /* White */
-    if (t <= 69) return "t-cool";   /* Light Blue */
-    if (t <= 79) return "t-yellow"; /* Yellow */
-    if (t <= 89) return "t-orange"; /* Orange */
-    if (t <= 99) return "t-lred";   /* Light Red */
-    return "t-bred";                /* Bright Red >= 100 */
-}
-
-/* UPDATE LOCAL TIME DISPLAY */
-function updateClock() {
-    const timeStr = new Date().toLocaleTimeString("en-US", {
-        timeZone: "America/New_York",
-        hour: "2-digit",
-        minute: "2-digit"
-    });
-    document.getElementById("local-time").innerText = timeStr.replace(/^0/, '');
-}
-setInterval(updateClock, 1000);
-
-/* FETCH GLOBAL NEWS HEADLINES */
-async function fetchNews() {
-    try {
-        let res = await fetch("https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ffeeds.bbci.co.uk%2Fnews%2Fworld%2Frss.xml");
-        let data = await res.json();
-        if (data.items && data.items.length > 0) {
-            newsItems = data.items.map(i => i.title);
-            cycleNews();
-        }
-    } catch(e) {
-        newsItems = ["US & World Events updates stream active."];
-        cycleNews();
-    }
-}
-
-function cycleNews() {
-    if (newsItems.length === 0) return;
-    const ticker = document.getElementById("news-ticker");
-    ticker.style.opacity = 0;
-    setTimeout(() => {
-        ticker.innerText = newsItems[newsIndex];
-        ticker.style.opacity = 1;
-        newsIndex = (newsIndex + 1) % newsItems.length;
-    }, 400);
-}
-setInterval(cycleNews, 12000);
-
-/* HURRICANE TRACKER ENGINE */
-async function checkHurricaneTracker() {
-    const statusBox = document.getElementById("caneStatus");
-    const stormListBox = document.getElementById("caneStormList");
-    const countdownBox = document.getElementById("caneCountdown");
-
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    let seasonStart = new Date(currentYear, 5, 1);
-    let seasonEnd = new Date(currentYear, 10, 30, 23, 59, 59);
-
-    if (now >= seasonStart && now <= seasonEnd) {
-        const daysLeft = Math.ceil((seasonEnd - now) / (1000 * 60 * 60 * 24));
-        countdownBox.innerHTML = `⏳ Season Ends in ${daysLeft} Days`;
-    } else {
-        if (now > seasonEnd) seasonStart = new Date(currentYear + 1, 5, 1);
-        const daysUntil = Math.ceil((seasonStart - now) / (1000 * 60 * 60 * 24));
-        countdownBox.innerHTML = `⏳ ${daysUntil} Days Until Season Start`;
-    }
-
-    try {
-        let alertUrl = "https://api.weather.gov/alerts/active?event=Tropical%20Storm%20Warning,Tropical%20Storm%20Watch,Hurricane%20Warning,Hurricane%20Watch,Hurricane%20Local%20Statement";
-        let res = await fetch(alertUrl);
-        let data = await res.json();
-        let features = data.features || [];
-
-        let localRes = await fetch("https://api.weather.gov/alerts/active?zone=FLZ068");
-        let localData = await localRes.json();
-        let localFeatures = localData.features || [];
-
-        if (localFeatures.length > 0) {
-            statusBox.className = "alert-active";
-            statusBox.innerHTML = `🚨 Local Warning Active!`;
-        } else if (features.length > 0) {
-            statusBox.className = "alert-active";
-            statusBox.style.color = "#ff8c1a";
-            statusBox.innerHTML = `⚠️ Active System Tracked`;
-        } else {
-            statusBox.className = "alert-quiet";
-            statusBox.innerHTML = `✓ Basin Quiet`;
+        // Temperature Color Scaling
+        function getTempColor(temp) {
+            if (temp <= 59) return "#FFFFFF"; // White
+            if (temp <= 69) return "#87CEEB"; // Light Blue
+            if (temp <= 79) return "#FFFF00"; // Yellow
+            if (temp <= 89) return "#FFA500"; // Orange
+            if (temp <= 99) return "#FF0000"; // Red
+            return "#800000";                  // Maroon
         }
 
-        if (features.length > 0) {
-            let uniqueEvents = [...new Set(features.map(f => f.properties.event))];
-            stormListBox.innerHTML = "🌀 " + uniqueEvents.slice(0, 1).join("");
-        } else {
-            stormListBox.innerHTML = "🌀 No Active Threat";
-        }
-    } catch(e) {
-        statusBox.className = "alert-quiet";
-        statusBox.innerHTML = `✓ Basin Quiet`;
-    }
-}
-
-/* UTILITY TO UPDATE TEMP & M.I. DISPLAY ELEMENTS WITH COLORS */
-function applyTempAndMI(tempId, miId, tempVal, miVal) {
-    let tEl = document.getElementById(tempId);
-    let miEl = document.getElementById(miId);
-
-    let tRound = Math.round(tempVal);
-    let miRound = Math.round(miVal);
-
-    tEl.innerText = tRound;
-    tEl.className = getTempColorClass(tRound);
-
-    miEl.innerText = miRound;
-    miEl.className = getTempColorClass(miRound);
-}
-
-/* FETCH ALL WEATHER DATA */
-async function fetchWeatherData() {
-    updateClock();
-    checkHurricaneTracker();
-
-    try {
-        // 1. Deerfield Beach (Local)
-        let r1 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=26.3184&longitude=-80.0998&current=temperature_2m,apparent_temperature&hourly=temperature_2m,precipitation_probability&temperature_unit=fahrenheit&timezone=America/New_York&forecast_days=1");
-        let d1 = await r1.json();
-
-        if (d1.current) {
-            applyTempAndMI("local-temp", "local-mi", d1.current.temperature_2m, d1.current.apparent_temperature);
-        }
-
-        // 6-Hour Hourly Forecast Builder
-        if (d1.hourly) {
-            let container = document.getElementById("hourly-container");
-            container.innerHTML = "";
-            
-            let currentHourIdx = new Date().getHours();
-            for (let i = 0; i < 6; i++) {
-                let idx = (currentHourIdx + i) % 24;
-                let timeRaw = d1.hourly.time[idx].split("T")[1];
-                let hourNum = parseInt(timeRaw.split(":")[0]);
-                let ampm = hourNum >= 12 ? 'PM' : 'AM';
-                let displayHour = (hourNum % 12 || 12) + ampm;
-                
-                let hTemp = Math.round(d1.hourly.temperature_2m[idx]);
-                let pop = d1.hourly.precipitation_probability[idx];
-                
-                let hourBlock = document.createElement("div");
-                hourBlock.className = "hourly-item";
-                hourBlock.innerHTML = `
-                    <div class="hourly-time">${displayHour}</div>
-                    <div class="hourly-temp ${getTempColorClass(hTemp)}">${hTemp}°</div>
-                    <div class="hourly-pop">☔${pop}%</div>
-                `;
-                container.appendChild(hourBlock);
+        function applyTempStyle(elementId, tempValue) {
+            const el = document.getElementById(elementId);
+            if (el && !isNaN(tempValue)) {
+                const rounded = Math.round(tempValue);
+                el.innerText = rounded + "°";
+                el.style.color = getTempColor(rounded);
             }
         }
 
-        // 2. Anthem AZ
-        let r2 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=33.8674&longitude=-112.1465&current=temperature_2m,apparent_temperature&temperature_unit=fahrenheit");
-        let d2 = await r2.json();
-        if (d2.current) {
-            applyTempAndMI("az-temp", "az-mi", d2.current.temperature_2m, d2.current.apparent_temperature);
+        // Clock Update
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            hours = hours % 12 || 12;
+            document.getElementById("local-time").innerText = hours + ":" + minutes;
         }
+        setInterval(updateClock, 1000);
+        updateClock();
 
-        // 3. Riyadh Saudi Arabia
-        let r3 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=24.6877&longitude=46.7219&current=temperature_2m,apparent_temperature&temperature_unit=fahrenheit");
-        let d3 = await r3.json();
-        if (d3.current) {
-            applyTempAndMI("riyadh-temp", "riyadh-mi", d3.current.temperature_2m, d3.current.apparent_temperature);
+        // NWS Active Alert Check (Deerfield Beach Area)
+        async function checkWeatherAlerts() {
+            try {
+                const response = await fetch('https://api.weather.gov/alerts/active?point=26.3184,-80.0997');
+                const data = await response.json();
+                const tempBox = document.getElementById("local-temp-box");
+
+                // Filter out marine/ocean alerts
+                const landAlerts = data.features.filter(alert => {
+                    const eventName = alert.properties.event.toLowerCase();
+                    return !eventName.includes("marine") && !eventName.includes("rip current") && !eventName.includes("surf") && !eventName.includes("coastal");
+                });
+
+                if (landAlerts.length > 0) {
+                    tempBox.classList.add("alert-active");
+                } else {
+                    tempBox.classList.remove("alert-active");
+                }
+            } catch (err) {
+                console.error("Alert fetch failed:", err);
+            }
         }
+        setInterval(checkWeatherAlerts, 300000); // Check every 5 mins
+        checkWeatherAlerts();
 
-        // 4. St Croix USVI
-        let r4 = await fetch("https://api.open-meteo.com/v1/forecast?latitude=17.7466&longitude=-64.7031&current=temperature_2m,apparent_temperature&temperature_unit=fahrenheit");
-        let d4 = await r4.json();
-        if (d4.current) {
-            applyTempAndMI("stcroix-temp", "stcroix-mi", d4.current.temperature_2m, d4.current.apparent_temperature);
+        // Local Weather Fetch (NWS)
+        async function fetchLocalWeather() {
+            try {
+                // Deerfield Beach Grid Endpoint
+                const gridRes = await fetch('https://api.weather.gov/gridpoints/MFL/110,72');
+                const gridData = await gridRes.json();
+                
+                // Current Temp (convert C to F)
+                const currentC = gridData.properties.temperature.values[0].value;
+                const currentF = (currentC * 9/5) + 32;
+                applyTempStyle("local-temp", currentF);
+
+                // Hourly Forecast (Next 6 Hours)
+                const forecastRes = await fetch('https://api.weather.gov/gridpoints/MFL/110,72/forecast/hourly');
+                const forecastData = await forecastRes.json();
+                const periods = forecastData.properties.periods.slice(0, 6);
+
+                const hourlyContainer = document.getElementById("hourly-forecast");
+                hourlyContainer.innerHTML = "";
+
+                periods.forEach(p => {
+                    const timeStr = new Date(p.startTime).toLocaleTimeString([], { hour: 'numeric' });
+                    const pop = p.probabilityOfPrecipitation.value || 0;
+                    const tempColor = getTempColor(p.temperature);
+
+                    const item = document.createElement("div");
+                    item.className = "hourly-item";
+                    item.innerHTML = `
+                        <div class="hourly-time">${timeStr}</div>
+                        <div class="hourly-temp" style="color: ${tempColor};">${p.temperature}°</div>
+                        <div class="hourly-pop">${pop}%</div>
+                    `;
+                    hourlyContainer.appendChild(item);
+                });
+
+            } catch (err) {
+                console.error("Local weather fetch failed:", err);
+            }
         }
+        setInterval(fetchLocalWeather, 600000); // Refresh every 10 mins
+        fetchLocalWeather();
 
-    } catch(e) {
-        console.log("Holding for next update cycle...", e);
-    }
-}
+        // Fetch Remote City Temperatures (Open-Meteo API)
+        async function fetchRemoteTemps() {
+            try {
+                // Anthem, AZ (33.8642, -112.1399)
+                const anthemRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=33.8642&longitude=-112.1399&current_weather=true&temperature_unit=fahrenheit');
+                const anthemData = await anthemRes.json();
+                applyTempStyle("anthem-temp", anthemData.current_weather.temperature);
 
-/* INITIALIZE PIPELINES */
-fetchWeatherData();
-fetchNews();
+                // Riyadh, Saudi Arabia (24.7136, 46.6753)
+                const riyadhRes = await fetch('https://api.open-meteo.com/v1/forecast?latitude=24.7136&longitude=46.6753&current_weather=true&temperature_unit=fahrenheit');
+                const riyadhData = await riyadhRes.json();
+                applyTempStyle("riyadh-temp", riyadhData.current_weather.temperature);
+            } catch (err) {
+                console.error("Remote temps fetch failed:", err);
+            }
+        }
+        setInterval(fetchRemoteTemps, 600000);
+        fetchRemoteTemps();
 
-setInterval(fetchWeatherData, 300000); // 5 min weather refresh
-setInterval(fetchNews, 900000);        // 15 min news refresh
-</script>
+        // Fetch & Parse Cozi iCal Feed
+        async function fetchCoziCalendar() {
+            try {
+                // Use a CORS proxy to allow loading the feed directly in the browser
+                const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(COZI_URL);
+                const response = await fetch(proxyUrl);
+                const icsText = await response.text();
 
+                const jcalData = ICAL.parse(icsText);
+                const comp = new ICAL.Component(jcalData);
+                const vevents = comp.getAllSubcomponents('vevent');
+
+                const now = new Date();
+                const sevenDaysLater = new Date();
+                sevenDaysLater.setDate(now.getDate() + 7);
+
+                let upcomingEvents = [];
+
+                vevents.forEach(vevent => {
+                    const event = new ICAL.Event(vevent);
+                    const startDate = event.startDate.toJSDate();
+
+                    if (startDate >= now && startDate <= sevenDaysLater) {
+                        upcomingEvents.push({
+                            summary: event.summary,
+                            startDate: startDate,
+                            isAllDay: event.startDate.isDate
+                        });
+                    }
+                });
+
+                // Sort chronological
+                upcomingEvents.sort((a, b) => a.startDate - b.startDate);
+
+                const listContainer = document.getElementById("calendar-events");
+                listContainer.innerHTML = "";
+
+                if (upcomingEvents.length === 0) {
+                    listContainer.innerHTML = `<div style="text-align: center; color: #888888; font-size: 16px; margin-top: 20px;">No events scheduled for the next 7 days.</div>`;
+                    return;
+                }
+
+                upcomingEvents.forEach(evt => {
+                    const dateStr = evt.startDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+                    const timeStr = evt.isAllDay ? "All Day" : evt.startDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+                    const item = document.createElement("div");
+                    item.className = "event-item";
+                    item.innerHTML = `
+                        <div class="event-date">${dateStr}</div>
+                        <div class="event-time">${timeStr}</div>
+                        <div class="event-summary">${evt.summary}</div>
+                    `;
+                    listContainer.appendChild(item);
+                });
+
+            } catch (err) {
+                console.error("Cozi calendar fetch failed:", err);
+                document.getElementById("calendar-events").innerHTML = `<div style="text-align: center; color: #FF4444; font-size: 14px; margin-top: 20px;">Unable to load Cozi feed.</div>`;
+            }
+        }
+        setInterval(fetchCoziCalendar, 900000); // Refresh every 15 mins
+        fetchCoziCalendar();
+    </script>
 </body>
 </html>
