@@ -5,25 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather & Calendar Dashboard</title>
     <style>
-        /* Cozi Calendar Right Panel Frame with Scaling */
-.calendar-box {
-    grid-column: 2 / 3;
-    grid-row: 1 / 4;
-    padding: 0;
-    background-color: #000000;
-    border: 2px solid #444444;
-    overflow: hidden;
-    position: relative;
-}
-.cozi-frame {
-    width: 140%;
-    height: 140%;
-    border: none;
-    background-color: #FFFFFF;
-    transform: scale(0.714);
-    transform-origin: 0 0;
-}
-
         * {
             box-sizing: border-box;
             margin: 0;
@@ -150,19 +131,23 @@
             border: none;
         }
 
-        /* Cozi Calendar Right Panel Frame */
+        /* Cozi Calendar Right Panel Frame with Scaling */
         .calendar-box {
             grid-column: 2 / 3;
             grid-row: 1 / 4;
             padding: 0;
-            background-color: #080808;
+            background-color: #000000;
             border: 2px solid #444444;
+            overflow: hidden;
+            position: relative;
         }
         .cozi-frame {
-            width: 100%;
-            height: 100%;
+            width: 140%;
+            height: 140%;
             border: none;
             background-color: #FFFFFF;
+            transform: scale(0.714);
+            transform-origin: 0 0;
         }
 
         /* Blinking Alert Animation for Weather Warnings */
