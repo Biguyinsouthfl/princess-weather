@@ -10,8 +10,8 @@
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: #0d1117;
             color: #f0f6fc;
-            height: 1080px;
             width: 1920px;
+            height: 1080px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -19,32 +19,37 @@
             gap: 15px;
         }
 
+        /* Number Outline Class */
+        .outlined-num {
+            -webkit-text-stroke: 1px #a0a6b0;
+            text-shadow: 0 0 2px rgba(0,0,0,0.8);
+        }
+
         /* Top Header Row */
         .header-row {
             display: flex;
             height: 110px;
             gap: 15px;
+            width: 1890px;
         }
-        .header-card {
+        .header-box {
             background: #161b22;
-            border: 1px solid #30363d;
+            border: 2px solid #30363d;
             border-radius: 10px;
             padding: 10px 15px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
         }
-        
-        /* Time Box */
+
+        /* Local Time Box */
         .time-box {
             width: 320px;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
         }
         .clock {
-            font-size: 2.3rem;
-            font-weight: 700;
+            font-size: 2.5rem;
+            font-weight: 800;
             color: #58a6ff;
             letter-spacing: -1px;
             white-space: nowrap;
@@ -52,121 +57,161 @@
         .date {
             font-size: 1rem;
             color: #8b949e;
-        }
-
-        /* Temp & Wind Display Cards */
-        .temp-card {
-            flex: 1;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-        }
-        .card-label {
-            font-size: 0.9rem;
-            color: #8b949e;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 2px;
-        }
-        .temp-val {
-            font-size: 2rem;
-            font-weight: 800;
-        }
-        .wind-val {
-            font-size: 1.4rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .wind-arrow {
-            display: inline-block;
-            transition: transform 0.5s ease;
-        }
-
-        /* NWS Alert Bar */
-        .alert-bar {
-            background: #21262d;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            padding: 8px 15px;
-            font-size: 1.1rem;
             font-weight: 600;
-            color: #f0f6fc;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            height: 45px;
-        }
-        .alert-active {
-            background: #781212 !important;
-            border-color: #f85149 !important;
-            color: #ffffff;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.75; }
-            100% { opacity: 1; }
         }
 
-        /* Fixed Grid Dimensions */
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1100px 760px;
-            gap: 15px;
-            height: 865px;
-            width: 1890px;
-        }
-
-        /* Left Column: Radar & Forecast */
-        .left-col {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            height: 865px;
-        }
-        .map-container {
-            height: 700px;
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        .map-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .hourly-container {
-            height: 150px;
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 10px;
-            padding: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* Hourly Forecast Box */
+        .hourly-box {
+            flex: 1;
+            justify-content: space-around;
         }
         .hourly-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-            flex: 1;
-            border-right: 1px solid #21262d;
+            gap: 2px;
         }
-        .hourly-item:last-child { border-right: none; }
-        .hourly-time { font-size: 0.85rem; color: #8b949e; }
-        .hourly-temp { font-size: 1.1rem; font-weight: 700; }
-        .hourly-pop { font-size: 0.8rem; color: #58a6ff; }
+        .hourly-time { font-size: 0.95rem; color: #8b949e; font-weight: 600; }
+        .hourly-temp { font-size: 1.5rem; font-weight: 800; }
+        .hourly-pop { font-size: 0.9rem; color: #58a6ff; font-weight: 700; }
 
-        /* Right Column: Google Calendar Agenda */
-        .right-col {
-            height: 865px;
+        /* Local Temp Box */
+        .local-temp-box {
+            width: 420px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        .card-label {
+            font-size: 0.85rem;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+            font-weight: 700;
+        }
+        .temp-val-large {
+            font-size: 2.4rem;
+            font-weight: 900;
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: flex;
+            gap: 15px;
+            width: 1890px;
+            height: 920px;
+        }
+
+        /* Left Side (Radar + Bottom Row) */
+        .left-side {
+            width: 1180px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 920px;
+        }
+
+        /* Radar Map Box */
+        .map-box {
+            height: 645px;
             background: #161b22;
-            border: 1px solid #30363d;
+            border: 2px solid #30363d;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .map-box iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Bottom Row Under Radar */
+        .bottom-row {
+            height: 260px;
+            display: flex;
+            gap: 15px;
+        }
+
+        /* YouTube Stream Box */
+        .youtube-box {
+            width: 440px;
+            background: #161b22;
+            border: 2px solid #30363d;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .youtube-box iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Remote Temps Box */
+        .remote-box {
+            width: 380px;
+            background: #161b22;
+            border: 2px solid #30363d;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+        .remote-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .remote-val {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        /* Wind Speed Box & Compass */
+        .wind-box {
+            flex: 1;
+            background: #161b22;
+            border: 2px solid #30363d;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .compass {
+            width: 80px;
+            height: 80px;
+            border: 3px solid #30363d;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #8b949e;
+        }
+        .compass-n { position: absolute; top: 4px; font-size: 0.75rem; }
+        .compass-s { position: absolute; bottom: 4px; font-size: 0.75rem; }
+        .compass-w { position: absolute; left: 6px; font-size: 0.75rem; }
+        .compass-e { position: absolute; right: 6px; font-size: 0.75rem; }
+        .wind-arrow {
+            font-size: 2rem;
+            transition: transform 0.5s ease;
+            display: inline-block;
+        }
+        .wind-text {
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+
+        /* Right Side (Google Calendar) */
+        .right-side {
+            width: 695px;
+            height: 920px;
+            background: #161b22;
+            border: 2px solid #30363d;
             border-radius: 10px;
             overflow: hidden;
         }
@@ -180,52 +225,71 @@
 </head>
 <body>
 
-    <!-- Top Status Bar -->
+    <!-- Top Header Row -->
     <div class="header-row">
-        <div class="header-card time-box">
-            <div class="clock" id="clock">--:-- --</div>
+        <!-- Local Time -->
+        <div class="header-box time-box">
+            <div class="clock outlined-num" id="clock">--:-- --</div>
             <div class="date" id="date">Loading...</div>
         </div>
 
-        <div class="header-card temp-card">
-            <div class="card-label">Deerfield Beach (Temp / Heat Index)</div>
-            <div class="temp-val" id="local-temp">--° / --°</div>
+        <!-- Hourly Weather Forecast -->
+        <div class="header-box hourly-box" id="hourly-forecast">
+            <!-- Dynamic Hourly Items -->
         </div>
 
-        <div class="header-card temp-card">
-            <div class="card-label">Remote Location (Temp / Heat Index)</div>
-            <div class="temp-val" id="remote-temp">--° / --°</div>
+        <!-- Local Temp / Heat Index -->
+        <div class="header-box local-temp-box">
+            <div class="card-label">Local Temp / Heat Index</div>
+            <div class="temp-val-large outlined-num" id="local-temp">--° / --°</div>
         </div>
-
-        <div class="header-card temp-card">
-            <div class="card-label">Wind / Gusts</div>
-            <div class="wind-val" id="wind-display">
-                <span class="wind-arrow" id="wind-arrow">↑</span>
-                <span id="wind-text">-- / -- mph</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Active NWS Weather Alerts -->
-    <div class="alert-bar" id="alert-bar">
-        <span>⚠️ Alerts:</span> <span id="alert-text">No active weather hazards for Deerfield Beach.</span>
     </div>
 
     <!-- Main Grid View -->
     <div class="main-grid">
-        <!-- Left Column: Radar Map & Forecast -->
-        <div class="left-col">
-            <div class="map-container">
-                <iframe src="https://embed.windy.com/embed2.html?lat=26.3181&lon=-80.1258&detailLat=26.3181&detailLon=-80.1258&width=650&height=450&zoom=9&level=surface&overlay=radar&product=radar&menu=&message=&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1"></iframe>
+        <!-- Left Side: Radar + Bottom Panel -->
+        <div class="left-side">
+            <!-- Radar Map -->
+            <div class="map-box">
+                <iframe src="https://embed.windy.com/embed2.html?lat=26.3181&lon=-80.1258&detailLat=26.3181&detailLon=-80.1258&width=1180&height=645&zoom=9&level=surface&overlay=radar&product=radar&menu=&message=&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1"></iframe>
             </div>
 
-            <div class="hourly-container" id="hourly-forecast">
-                <!-- Populated via JavaScript -->
+            <!-- Bottom Row Under Radar -->
+            <div class="bottom-row">
+                <!-- YouTube Pier Stream -->
+                <div class="youtube-box">
+                    <iframe src="https://www.youtube.com/embed/rdeoEeJ00xA?autoplay=1&mute=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                </div>
+
+                <!-- Stacked Remote Temps -->
+                <div class="remote-box">
+                    <div class="remote-item">
+                        <div class="card-label">Anthem, AZ Temp</div>
+                        <div class="remote-val outlined-num" id="anthem-temp">--° / --°</div>
+                    </div>
+                    <div class="remote-item">
+                        <div class="card-label">Riyadh, Saudi Arabia Temp</div>
+                        <div class="remote-val outlined-num" id="riyadh-temp">--° / --°</div>
+                    </div>
+                </div>
+
+                <!-- Wind Speed & Compass Dial -->
+                <div class="wind-box">
+                    <div class="card-label">Wind / Gusts</div>
+                    <div class="compass">
+                        <span class="compass-n">N</span>
+                        <span class="compass-s">S</span>
+                        <span class="compass-w">W</span>
+                        <span class="compass-e">E</span>
+                        <div class="wind-arrow" id="wind-arrow">↑</div>
+                    </div>
+                    <div class="wind-text outlined-num" id="wind-display">-- / -- mph</div>
+                </div>
             </div>
         </div>
 
-        <!-- Right Column: Google Calendar -->
-        <div class="right-col">
+        <!-- Right Side: Google Calendar -->
+        <div class="right-side">
             <iframe class="calendar-frame" src="https://calendar.google.com/calendar/embed?mode=AGENDA&showTitle=0&showNav=0&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&height=800&wkst=1&bgcolor=%23ffffff&src=tominsouthfl%40gmail.com&color=%23039BE5"></iframe>
         </div>
     </div>
@@ -233,19 +297,22 @@
     <script>
         const LOCAL_LAT = 26.3181;
         const LOCAL_LON = -80.1258;
-        const REMOTE_LAT = 34.0522;
-        const REMOTE_LON = -118.2437;
+        const ANTHEM_LAT = 33.8647;
+        const ANTHEM_LON = -112.1382;
+        const RIYADH_LAT = 24.7136;
+        const RIYADH_LON = 46.6753;
 
-        function getTemperatureColor(temp) {
-            if (temp <= 32) return '#ffffff';
-            if (temp <= 60) return '#87ceeb';
-            if (temp <= 75) return '#2ecc71';
-            if (temp <= 85) return '#f1c40f';
-            if (temp <= 95) return '#e67e22';
-            if (temp <= 105) return '#e74c3c';
-            return '#800000';
+        // Color scale: White (<=59), Light Blue (60-69), Yellow (70-79), Orange (80-89), Red (90-99), Maroon (>=100)
+        function getDynamicColor(value) {
+            if (value <= 59) return '#ffffff';      // White
+            if (value <= 69) return '#87ceeb';      // Light Blue
+            if (value <= 79) return '#f1c40f';      // Yellow
+            if (value <= 89) return '#e67e22';      // Orange
+            if (value <= 99) return '#e74c3c';      // Red
+            return '#800000';                      // Maroon
         }
 
+        // Clock Update
         function updateClock() {
             const now = new Date();
             let hours = now.getHours();
@@ -259,38 +326,34 @@
         setInterval(updateClock, 1000);
         updateClock();
 
+        // Fetch Weather Data
         async function fetchWeather() {
             try {
+                // 1. Local Weather
                 const localRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LOCAL_LAT}&longitude=${LOCAL_LON}&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,precipitation_probability&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`);
                 const localData = await localRes.json();
-                
-                const remoteRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${REMOTE_LAT}&longitude=${REMOTE_LON}&current=temperature_2m,apparent_temperature&temperature_unit=fahrenheit&timezone=auto`);
-                const remoteData = await remoteRes.json();
 
                 const lTemp = Math.round(localData.current.temperature_2m);
                 const lApparent = Math.round(localData.current.apparent_temperature);
                 const lEl = document.getElementById('local-temp');
                 lEl.textContent = `${lTemp}° / ${lApparent}°`;
-                lEl.style.color = getTemperatureColor(lTemp);
+                lEl.style.color = getDynamicColor(lTemp);
 
-                const rTemp = Math.round(remoteData.current.temperature_2m);
-                const rApparent = Math.round(remoteData.current.apparent_temperature);
-                const rEl = document.getElementById('remote-temp');
-                rEl.textContent = `${rTemp}° / ${rApparent}°`;
-                rEl.style.color = getTemperatureColor(rTemp);
-
+                // Wind & Gusts
                 const wSpeed = Math.round(localData.current.wind_speed_10m);
                 const wGust = Math.round(localData.current.wind_gusts_10m);
                 const wDir = localData.current.wind_direction_10m;
-                
-                document.getElementById('wind-text').textContent = `${wSpeed} / ${wGust} mph`;
-                document.getElementById('wind-arrow').style.transform = `rotate(${wDir}deg)`;
-                document.getElementById('wind-display').style.color = getTemperatureColor(wSpeed + 50);
 
+                const windEl = document.getElementById('wind-display');
+                windEl.textContent = `${wSpeed} / ${wGust} mph`;
+                windEl.style.color = getDynamicColor(wSpeed);
+                document.getElementById('wind-arrow').style.transform = `rotate(${wDir}deg)`;
+
+                // Hourly Forecast (6 Hours)
                 const hourlyContainer = document.getElementById('hourly-forecast');
                 hourlyContainer.innerHTML = '';
                 const currentHour = new Date().getHours();
-                
+
                 for (let i = 0; i < 6; i++) {
                     const idx = currentHour + i;
                     const timeStr = new Date(localData.hourly.time[idx]).toLocaleTimeString([], { hour: 'numeric' });
@@ -301,43 +364,37 @@
                     item.className = 'hourly-item';
                     item.innerHTML = `
                         <div class="hourly-time">${timeStr}</div>
-                        <div class="hourly-temp" style="color: ${getTemperatureColor(hTemp)}">${hTemp}°</div>
+                        <div class="hourly-temp outlined-num" style="color: ${getDynamicColor(hTemp)}">${hTemp}°</div>
                         <div class="hourly-pop">💧 ${hPop}%</div>
                     `;
                     hourlyContainer.appendChild(item);
                 }
 
-            } catch (err) {
-                console.error("Weather fetch failed:", err);
-            }
-        }
+                // 2. Anthem, AZ Weather
+                const anthemRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${ANTHEM_LAT}&longitude=${ANTHEM_LON}&current=temperature_2m,apparent_temperature&temperature_unit=fahrenheit&timezone=auto`);
+                const anthemData = await anthemRes.json();
+                const aTemp = Math.round(anthemData.current.temperature_2m);
+                const aApparent = Math.round(anthemData.current.apparent_temperature);
+                const aEl = document.getElementById('anthem-temp');
+                aEl.textContent = `${aTemp}° / ${aApparent}°`;
+                aEl.style.color = getDynamicColor(aTemp);
 
-        async function fetchNWSAlerts() {
-            try {
-                const res = await fetch(`https://api.weather.gov/alerts/active?point=${LOCAL_LAT},${LOCAL_LON}`, {
-                    headers: { 'User-Agent': 'WeatherStationDashboard/1.0' }
-                });
-                const data = await res.json();
-                const alertBar = document.getElementById('alert-bar');
-                const alertText = document.getElementById('alert-text');
+                // 3. Riyadh Weather
+                const riyadhRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${RIYADH_LAT}&longitude=${RIYADH_LON}&current=temperature_2m,apparent_temperature&temperature_unit=fahrenheit&timezone=auto`);
+                const riyadhData = await riyadhRes.json();
+                const rTemp = Math.round(riyadhData.current.temperature_2m);
+                const rApparent = Math.round(riyadhData.current.apparent_temperature);
+                const rEl = document.getElementById('riyadh-temp');
+                rEl.textContent = `${rTemp}° / ${rApparent}°`;
+                rEl.style.color = getDynamicColor(rTemp);
 
-                if (data.features && data.features.length > 0) {
-                    const headline = data.features[0].properties.headline || data.features[0].properties.event;
-                    alertText.textContent = headline;
-                    alertBar.classList.add('alert-active');
-                } else {
-                    alertText.textContent = "No active weather hazards for Deerfield Beach.";
-                    alertBar.classList.remove('alert-active');
-                }
             } catch (err) {
-                console.error("NWS alert fetch failed:", err);
+                console.error("Weather data fetch error:", err);
             }
         }
 
         fetchWeather();
-        fetchNWSAlerts();
-        setInterval(fetchWeather, 300000);
-        setInterval(fetchNWSAlerts, 300000);
+        setInterval(fetchWeather, 300000); // Refresh weather every 5 minutes
     </script>
 </body>
 </html>
