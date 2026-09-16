@@ -2,21 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather & Calendar Station</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
             background-color: #0d1117;
             color: #f0f6fc;
-            width: 1920px;
-            height: 1080px;
-            overflow: hidden;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
             display: flex;
             flex-direction: column;
-            padding: 15px;
-            gap: 15px;
+            padding: 10px;
+            gap: 10px;
         }
 
         /* Number Outline Class */
@@ -28,34 +31,33 @@
         /* Top Header Row */
         .header-row {
             display: flex;
-            height: 110px;
-            gap: 15px;
-            width: 1890px;
+            height: 12vh;
+            gap: 10px;
+            width: 100%;
         }
         .header-box {
             background: #161b22;
             border: 2px solid #30363d;
-            border-radius: 10px;
-            padding: 10px 15px;
+            border-radius: 8px;
+            padding: 5px 10px;
             display: flex;
             align-items: center;
         }
 
         /* Local Time Box */
         .time-box {
-            width: 320px;
+            width: 18vw;
             flex-direction: column;
             justify-content: center;
         }
         .clock {
-            font-size: 2.5rem;
+            font-size: 2.2vw;
             font-weight: 800;
             color: #58a6ff;
-            letter-spacing: -1px;
             white-space: nowrap;
         }
         .date {
-            font-size: 1rem;
+            font-size: 0.9vw;
             color: #8b949e;
             font-weight: 600;
         }
@@ -69,55 +71,53 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2px;
         }
-        .hourly-time { font-size: 0.95rem; color: #8b949e; font-weight: 600; }
-        .hourly-temp { font-size: 1.5rem; font-weight: 800; }
-        .hourly-pop { font-size: 0.9rem; color: #58a6ff; font-weight: 700; }
+        .hourly-time { font-size: 0.8vw; color: #8b949e; font-weight: 600; }
+        .hourly-temp { font-size: 1.4vw; font-weight: 800; }
+        .hourly-pop { font-size: 0.75vw; color: #58a6ff; font-weight: 700; }
 
         /* Local Temp Box */
         .local-temp-box {
-            width: 420px;
+            width: 22vw;
             flex-direction: column;
             justify-content: center;
             align-items: flex-end;
         }
         .card-label {
-            font-size: 0.85rem;
+            font-size: 0.75vw;
             color: #8b949e;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 2px;
             font-weight: 700;
         }
         .temp-val-large {
-            font-size: 2.4rem;
+            font-size: 2.2vw;
             font-weight: 900;
         }
 
         /* Main Grid */
         .main-grid {
             display: flex;
-            gap: 15px;
-            width: 1890px;
-            height: 920px;
+            gap: 10px;
+            width: 100%;
+            height: 85vh;
         }
 
-        /* Left Side (Radar + Bottom Row) */
+        /* Left Side */
         .left-side {
-            width: 1180px;
+            width: 63vw;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            height: 920px;
+            gap: 10px;
+            height: 100%;
         }
 
         /* Radar Map Box */
         .map-box {
-            height: 645px;
+            height: 60vh;
             background: #161b22;
             border: 2px solid #30363d;
-            border-radius: 10px;
+            border-radius: 8px;
             overflow: hidden;
         }
         .map-box iframe {
@@ -128,17 +128,17 @@
 
         /* Bottom Row Under Radar */
         .bottom-row {
-            height: 260px;
+            height: 23vh;
             display: flex;
-            gap: 15px;
+            gap: 10px;
         }
 
         /* YouTube Stream Box */
         .youtube-box {
-            width: 440px;
+            width: 24vw;
             background: #161b22;
             border: 2px solid #30363d;
-            border-radius: 10px;
+            border-radius: 8px;
             overflow: hidden;
         }
         .youtube-box iframe {
@@ -149,41 +149,37 @@
 
         /* Remote Temps Box */
         .remote-box {
-            width: 380px;
+            width: 20vw;
             background: #161b22;
             border: 2px solid #30363d;
-            border-radius: 10px;
-            padding: 15px;
+            border-radius: 8px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
             justify-content: space-around;
         }
-        .remote-item {
-            display: flex;
-            flex-direction: column;
-        }
         .remote-val {
-            font-size: 1.8rem;
+            font-size: 1.5vw;
             font-weight: 800;
         }
 
-        /* Wind Speed Box & Compass */
+        /* Wind Speed Box */
         .wind-box {
             flex: 1;
             background: #161b22;
             border: 2px solid #30363d;
-            border-radius: 10px;
-            padding: 15px;
+            border-radius: 8px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 5px;
         }
         .compass {
-            width: 80px;
-            height: 80px;
-            border: 3px solid #30363d;
+            width: 4.5vw;
+            height: 4.5vw;
+            border: 2px solid #30363d;
             border-radius: 50%;
             position: relative;
             display: flex;
@@ -192,27 +188,20 @@
             font-weight: 800;
             color: #8b949e;
         }
-        .compass-n { position: absolute; top: 4px; font-size: 0.75rem; }
-        .compass-s { position: absolute; bottom: 4px; font-size: 0.75rem; }
-        .compass-w { position: absolute; left: 6px; font-size: 0.75rem; }
-        .compass-e { position: absolute; right: 6px; font-size: 0.75rem; }
-        .wind-arrow {
-            font-size: 2rem;
-            transition: transform 0.5s ease;
-            display: inline-block;
-        }
-        .wind-text {
-            font-size: 1.6rem;
-            font-weight: 800;
-        }
+        .compass-n { position: absolute; top: 2px; font-size: 0.6vw; }
+        .compass-s { position: absolute; bottom: 2px; font-size: 0.6vw; }
+        .compass-w { position: absolute; left: 4px; font-size: 0.6vw; }
+        .compass-e { position: absolute; right: 4px; font-size: 0.6vw; }
+        .wind-arrow { font-size: 1.5vw; transition: transform 0.5s ease; display: inline-block; }
+        .wind-text { font-size: 1.2vw; font-weight: 800; }
 
         /* Right Side (Google Calendar) */
         .right-side {
-            width: 695px;
-            height: 920px;
+            width: 35vw;
+            height: 100%;
             background: #161b22;
             border: 2px solid #30363d;
-            border-radius: 10px;
+            border-radius: 8px;
             overflow: hidden;
         }
         .calendar-frame {
@@ -227,18 +216,11 @@
 
     <!-- Top Header Row -->
     <div class="header-row">
-        <!-- Local Time -->
         <div class="header-box time-box">
             <div class="clock outlined-num" id="clock">--:-- --</div>
             <div class="date" id="date">Loading...</div>
         </div>
-
-        <!-- Hourly Weather Forecast -->
-        <div class="header-box hourly-box" id="hourly-forecast">
-            <!-- Dynamic Hourly Items -->
-        </div>
-
-        <!-- Local Temp / Heat Index -->
+        <div class="header-box hourly-box" id="hourly-forecast"></div>
         <div class="header-box local-temp-box">
             <div class="card-label">Local Temp / Heat Index</div>
             <div class="temp-val-large outlined-num" id="local-temp">--° / --°</div>
@@ -247,33 +229,24 @@
 
     <!-- Main Grid View -->
     <div class="main-grid">
-        <!-- Left Side: Radar + Bottom Panel -->
         <div class="left-side">
-            <!-- Radar Map -->
             <div class="map-box">
-                <iframe src="https://embed.windy.com/embed2.html?lat=26.3181&lon=-80.1258&detailLat=26.3181&detailLon=-80.1258&width=1180&height=645&zoom=9&level=surface&overlay=radar&product=radar&menu=&message=&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1"></iframe>
+                <iframe src="https://embed.windy.com/embed2.html?lat=26.3181&lon=-80.1258&detailLat=26.3181&detailLon=-80.1258&zoom=9&level=surface&overlay=radar&product=radar&menu=&message=&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1"></iframe>
             </div>
-
-            <!-- Bottom Row Under Radar -->
             <div class="bottom-row">
-                <!-- YouTube Pier Stream -->
                 <div class="youtube-box">
                     <iframe src="https://www.youtube.com/embed/rdeoEeJ00xA?autoplay=1&mute=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                 </div>
-
-                <!-- Stacked Remote Temps -->
                 <div class="remote-box">
-                    <div class="remote-item">
+                    <div>
                         <div class="card-label">Anthem, AZ Temp</div>
                         <div class="remote-val outlined-num" id="anthem-temp">--° / --°</div>
                     </div>
-                    <div class="remote-item">
+                    <div>
                         <div class="card-label">Riyadh, Saudi Arabia Temp</div>
                         <div class="remote-val outlined-num" id="riyadh-temp">--° / --°</div>
                     </div>
                 </div>
-
-                <!-- Wind Speed & Compass Dial -->
                 <div class="wind-box">
                     <div class="card-label">Wind / Gusts</div>
                     <div class="compass">
@@ -287,10 +260,8 @@
                 </div>
             </div>
         </div>
-
-        <!-- Right Side: Google Calendar -->
         <div class="right-side">
-            <iframe class="calendar-frame" src="https://calendar.google.com/calendar/embed?mode=AGENDA&showTitle=0&showNav=0&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&height=800&wkst=1&bgcolor=%23ffffff&src=tominsouthfl%40gmail.com&color=%23039BE5"></iframe>
+            <iframe class="calendar-frame" src="https://calendar.google.com/calendar/embed?mode=AGENDA&showTitle=0&showNav=0&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&bgcolor=%23ffffff&src=tominsouthfl%40gmail.com&color=%23039BE5"></iframe>
         </div>
     </div>
 
@@ -302,34 +273,29 @@
         const RIYADH_LAT = 24.7136;
         const RIYADH_LON = 46.6753;
 
-        // Color scale: White (<=59), Light Blue (60-69), Yellow (70-79), Orange (80-89), Red (90-99), Maroon (>=100)
         function getDynamicColor(value) {
-            if (value <= 59) return '#ffffff';      // White
-            if (value <= 69) return '#87ceeb';      // Light Blue
-            if (value <= 79) return '#f1c40f';      // Yellow
-            if (value <= 89) return '#e67e22';      // Orange
-            if (value <= 99) return '#e74c3c';      // Red
-            return '#800000';                      // Maroon
+            if (value <= 59) return '#ffffff';
+            if (value <= 69) return '#87ceeb';
+            if (value <= 79) return '#f1c40f';
+            if (value <= 89) return '#e67e22';
+            if (value <= 99) return '#e74c3c';
+            return '#800000';
         }
 
-        // Clock Update
         function updateClock() {
             const now = new Date();
             let hours = now.getHours();
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12 || 12;
-            
             document.getElementById('clock').textContent = `${hours}:${minutes} ${ampm}`;
             document.getElementById('date').textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
         }
         setInterval(updateClock, 1000);
         updateClock();
 
-        // Fetch Weather Data
         async function fetchWeather() {
             try {
-                // 1. Local Weather
                 const localRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LOCAL_LAT}&longitude=${LOCAL_LON}&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,precipitation_probability&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`);
                 const localData = await localRes.json();
 
@@ -339,7 +305,6 @@
                 lEl.textContent = `${lTemp}° / ${lApparent}°`;
                 lEl.style.color = getDynamicColor(lTemp);
 
-                // Wind & Gusts
                 const wSpeed = Math.round(localData.current.wind_speed_10m);
                 const wGust = Math.round(localData.current.wind_gusts_10m);
                 const wDir = localData.current.wind_direction_10m;
@@ -349,7 +314,6 @@
                 windEl.style.color = getDynamicColor(wSpeed);
                 document.getElementById('wind-arrow').style.transform = `rotate(${wDir}deg)`;
 
-                // Hourly Forecast (6 Hours)
                 const hourlyContainer = document.getElementById('hourly-forecast');
                 hourlyContainer.innerHTML = '';
                 const currentHour = new Date().getHours();
@@ -370,7 +334,6 @@
                     hourlyContainer.appendChild(item);
                 }
 
-                // 2. Anthem, AZ Weather
                 const anthemRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${ANTHEM_LAT}&longitude=${ANTHEM_LON}&current=temperature_2m,apparent_temperature&temperature_unit=fahrenheit&timezone=auto`);
                 const anthemData = await anthemRes.json();
                 const aTemp = Math.round(anthemData.current.temperature_2m);
@@ -379,7 +342,6 @@
                 aEl.textContent = `${aTemp}° / ${aApparent}°`;
                 aEl.style.color = getDynamicColor(aTemp);
 
-                // 3. Riyadh Weather
                 const riyadhRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${RIYADH_LAT}&longitude=${RIYADH_LON}&current=temperature_2m,apparent_temperature&temperature_unit=fahrenheit&timezone=auto`);
                 const riyadhData = await riyadhRes.json();
                 const rTemp = Math.round(riyadhData.current.temperature_2m);
@@ -394,7 +356,7 @@
         }
 
         fetchWeather();
-        setInterval(fetchWeather, 300000); // Refresh weather every 5 minutes
+        setInterval(fetchWeather, 300000);
     </script>
 </body>
 </html>
