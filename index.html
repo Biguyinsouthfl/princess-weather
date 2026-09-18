@@ -83,7 +83,7 @@
         .hourly-temp { font-size: 1.4vw; font-weight: 800; }
         .hourly-pop { font-size: 0.75vw; color: #58a6ff; font-weight: 700; }
 
-        /* Local Temp Box (Centered, Enlarged, No Header Text) */
+        /* Local Temp Box */
         .local-temp-box {
             width: 22vw;
             justify-content: center;
@@ -162,7 +162,7 @@
             border: none;
         }
 
-        /* Remote Temps Box (Anthem & Riyadh +35% Size) */
+        /* Remote Temps Box (Anthem & Riyadh) */
         .remote-box {
             width: 20vw;
             background: #161b22;
@@ -179,11 +179,27 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: 700;
+            margin-bottom: 2px;
         }
-        .remote-val {
-            font-size: 2.1vw;
+        .remote-temp-container {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+        .remote-primary {
+            font-size: 2.2vw;
+            font-weight: 900;
+            line-height: 1;
+        }
+        .remote-slash {
+            font-size: 1.6vw;
+            color: #8b949e;
+            font-weight: 700;
+        }
+        .remote-secondary {
+            font-size: 1.7vw;
             font-weight: 800;
-            line-height: 1.1;
+            line-height: 1;
         }
 
         /* Enlarged Wind Dial Box */
@@ -192,50 +208,53 @@
             background: #161b22;
             border: 2px solid #30363d;
             border-radius: 8px;
-            padding: 6px;
+            padding: 4px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-around;
-        }
-        .wind-label {
-            font-size: 0.8vw;
-            color: #8b949e;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 700;
+            justify-content: space-evenly;
         }
         .compass {
-            width: 6.8vw;
-            height: 6.8vw;
-            border: 3px solid #30363d;
+            width: 8.5vw;
+            height: 8.5vw;
+            border: 4px solid #58a6ff; /* High-contrast blue border */
             border-radius: 50%;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 900;
-            color: #8b949e;
-            background: rgba(255, 255, 255, 0.02);
+            color: #f0f6fc;
+            background: rgba(22, 27, 34, 0.8);
+            box-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
         }
-        .compass-n { position: absolute; top: 3px; font-size: 0.8vw; }
-        .compass-s { position: absolute; bottom: 3px; font-size: 0.8vw; }
-        .compass-w { position: absolute; left: 5px; font-size: 0.8vw; }
-        .compass-e { position: absolute; right: 5px; font-size: 0.8vw; }
-        .wind-arrow { 
-            font-size: 2.8vw; 
-            transition: transform 0.5s ease; 
-            display: inline-block;
-            color: #58a6ff;
-            font-weight: 900;
+        .compass-n { position: absolute; top: 2px; font-size: 0.9vw; }
+        .compass-s { position: absolute; bottom: 2px; font-size: 0.9vw; }
+        .compass-w { position: absolute; left: 4px; font-size: 0.9vw; }
+        .compass-e { position: absolute; right: 4px; font-size: 0.9vw; }
+        
+        .wind-arrow-wrapper {
+            width: 5vw;
+            height: 5vw;
+            transition: transform 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        .wind-arrow-svg {
+            width: 100%;
+            height: 100%;
+            fill: #58a6ff;
+            filter: drop-shadow(0px 0px 3px #000);
+        }
+
         .wind-text { 
-            font-size: 1.8vw; 
+            font-size: 2.1vw; 
             font-weight: 900; 
             line-height: 1;
         }
 
-        /* Right Column (Google Calendar scaled 25%) */
+        /* Right Column (Google Calendar) */
         .right-side {
             width: 35vw;
             height: 100%;
@@ -286,21 +305,32 @@
                 <div class="remote-box">
                     <div>
                         <div class="remote-label">Anthem, AZ Temp</div>
-                        <div class="remote-val outlined-num" id="anthem-temp">--° / --°</div>
+                        <div class="remote-temp-container">
+                            <span class="remote-primary outlined-num" id="anthem-temp-main">--°</span>
+                            <span class="remote-slash">/</span>
+                            <span class="remote-secondary outlined-num" id="anthem-temp-heat">--°</span>
+                        </div>
                     </div>
                     <div>
                         <div class="remote-label">Riyadh, Saudi Arabia Temp</div>
-                        <div class="remote-val outlined-num" id="riyadh-temp">--° / --°</div>
+                        <div class="remote-temp-container">
+                            <span class="remote-primary outlined-num" id="riyadh-temp-main">--°</span>
+                            <span class="remote-slash">/</span>
+                            <span class="remote-secondary outlined-num" id="riyadh-temp-heat">--°</span>
+                        </div>
                     </div>
                 </div>
                 <div class="wind-box">
-                    <div class="wind-label">Wind / Gusts</div>
                     <div class="compass">
                         <span class="compass-n">N</span>
                         <span class="compass-s">S</span>
                         <span class="compass-w">W</span>
                         <span class="compass-e">E</span>
-                        <div class="wind-arrow" id="wind-arrow">↑</div>
+                        <div class="wind-arrow-wrapper" id="wind-arrow-wrapper">
+                            <svg class="wind-arrow-svg" viewBox="0 0 24 24">
+                                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
+                            </svg>
+                        </div>
                     </div>
                     <div class="wind-text outlined-num" id="wind-display">-- / -- mph</div>
                 </div>
@@ -342,7 +372,6 @@
             clockEl.textContent = `${hours}:${minutes} ${ampm}`;
             document.getElementById('date').textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
-            // Dynamic Day/Night Color Switch based on Daily Sunrise/Sunset
             if (sunriseTime && sunsetTime) {
                 if (now >= sunriseTime && now < sunsetTime) {
                     clockEl.classList.add('daytime');
@@ -352,7 +381,6 @@
                     clockEl.classList.remove('daytime');
                 }
             } else {
-                // Fallback standard daytime hours (6 AM to 7 PM)
                 const currentHour = now.getHours();
                 if (currentHour >= 6 && currentHour < 19) {
                     clockEl.classList.add('daytime');
@@ -371,7 +399,6 @@
                 const localRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LOCAL_LAT}&longitude=${LOCAL_LON}&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,precipitation_probability&daily=sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`);
                 const localData = await localRes.json();
 
-                // Save Sunrise / Sunset for exact day/night clock color tracking
                 if (localData.daily && localData.daily.sunrise && localData.daily.sunset) {
                     sunriseTime = new Date(localData.daily.sunrise[0]);
                     sunsetTime = new Date(localData.daily.sunset[0]);
@@ -399,7 +426,7 @@
                 const windEl = document.getElementById('wind-display');
                 windEl.textContent = `${wSpeed} / ${wGust} mph`;
                 windEl.style.color = getDynamicColor(wSpeed);
-                document.getElementById('wind-arrow').style.transform = `rotate(${wDir}deg)`;
+                document.getElementById('wind-arrow-wrapper').style.transform = `rotate(${wDir}deg)`;
 
                 // Hourly Forecast
                 const hourlyContainer = document.getElementById('hourly-forecast');
@@ -427,18 +454,26 @@
                 const anthemData = await anthemRes.json();
                 const aTemp = Math.round(anthemData.current.temperature_2m);
                 const aApparent = Math.round(anthemData.current.apparent_temperature);
-                const aEl = document.getElementById('anthem-temp');
-                aEl.textContent = `${aTemp}° / ${aApparent}°`;
-                aEl.style.color = getDynamicColor(aTemp);
+                
+                const aMain = document.getElementById('anthem-temp-main');
+                const aHeat = document.getElementById('anthem-temp-heat');
+                aMain.textContent = `${aTemp}°`;
+                aMain.style.color = getDynamicColor(aTemp);
+                aHeat.textContent = `${aApparent}°`;
+                aHeat.style.color = getDynamicColor(aApparent);
 
                 // Riyadh Temp
                 const riyadhRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${RIYADH_LAT}&longitude=${RIYADH_LON}&current=temperature_2m,apparent_temperature&temperature_unit=fahrenheit&timezone=auto`);
                 const riyadhData = await riyadhRes.json();
                 const rTemp = Math.round(riyadhData.current.temperature_2m);
                 const rApparent = Math.round(riyadhData.current.apparent_temperature);
-                const rEl = document.getElementById('riyadh-temp');
-                rEl.textContent = `${rTemp}° / ${rApparent}°`;
-                rEl.style.color = getDynamicColor(rTemp);
+                
+                const rMain = document.getElementById('riyadh-temp-main');
+                const rHeat = document.getElementById('riyadh-temp-heat');
+                rMain.textContent = `${rTemp}°`;
+                rMain.style.color = getDynamicColor(rTemp);
+                rHeat.textContent = `${rApparent}°`;
+                rHeat.style.color = getDynamicColor(rApparent);
 
             } catch (err) {
                 console.error("Weather data fetch error:", err);
