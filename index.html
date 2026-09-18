@@ -22,7 +22,7 @@
             gap: 10px;
         }
 
-        /* Number Outline Class */
+        /* Text Stroke / Outline Class */
         .outlined-num {
             -webkit-text-stroke: 1px #a0a6b0;
             text-shadow: 0 0 2px rgba(0,0,0,0.8);
@@ -49,15 +49,22 @@
             width: 18vw;
             flex-direction: column;
             justify-content: center;
+            align-items: center;
         }
         .clock {
-            font-size: 2.2vw;
+            font-size: 2.7vw;
             font-weight: 800;
-            color: #58a6ff;
             white-space: nowrap;
+            transition: color 0.5s ease;
+        }
+        .clock.daytime {
+            color: #f1c40f; /* Bright Yellow */
+        }
+        .clock.nighttime {
+            color: #58a6ff; /* Light Blue */
         }
         .date {
-            font-size: 0.9vw;
+            font-size: 1vw;
             color: #8b949e;
             font-weight: 600;
         }
@@ -76,26 +83,34 @@
         .hourly-temp { font-size: 1.4vw; font-weight: 800; }
         .hourly-pop { font-size: 0.75vw; color: #58a6ff; font-weight: 700; }
 
-        /* Local Temp Box */
+        /* Local Temp Box (Centered, Enlarged, No Header Text) */
         .local-temp-box {
             width: 22vw;
-            flex-direction: column;
             justify-content: center;
-            align-items: flex-end;
+            align-items: center;
         }
-        .card-label {
-            font-size: 0.75vw;
+        .temp-container {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+        .temp-val-primary {
+            font-size: 3.5vw;
+            font-weight: 900;
+            line-height: 1;
+        }
+        .temp-slash {
+            font-size: 2.8vw;
             color: #8b949e;
-            text-transform: uppercase;
-            letter-spacing: 1px;
             font-weight: 700;
         }
-        .temp-val-large {
-            font-size: 2.2vw;
-            font-weight: 900;
+        .temp-val-secondary {
+            font-size: 2.6vw;
+            font-weight: 800;
+            line-height: 1;
         }
 
-        /* Main Grid */
+        /* Main Grid Layout */
         .main-grid {
             display: flex;
             gap: 10px;
@@ -103,7 +118,7 @@
             height: 85vh;
         }
 
-        /* Left Side */
+        /* Left Column */
         .left-side {
             width: 63vw;
             display: flex;
@@ -114,7 +129,7 @@
 
         /* Radar Map Box */
         .map-box {
-            height: 60vh;
+            height: 58vh;
             background: #161b22;
             border: 2px solid #30363d;
             border-radius: 8px;
@@ -128,14 +143,14 @@
 
         /* Bottom Row Under Radar */
         .bottom-row {
-            height: 23vh;
+            height: 25vh;
             display: flex;
             gap: 10px;
         }
 
-        /* YouTube Stream Box */
+        /* YouTube Live Stream Box */
         .youtube-box {
-            width: 24vw;
+            width: 22vw;
             background: #161b22;
             border: 2px solid #30363d;
             border-radius: 8px;
@@ -147,55 +162,80 @@
             border: none;
         }
 
-        /* Remote Temps Box */
+        /* Remote Temps Box (Anthem & Riyadh +35% Size) */
         .remote-box {
             width: 20vw;
             background: #161b22;
             border: 2px solid #30363d;
             border-radius: 8px;
-            padding: 8px;
+            padding: 8px 12px;
             display: flex;
             flex-direction: column;
             justify-content: space-around;
         }
+        .remote-label {
+            font-size: 0.8vw;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
         .remote-val {
-            font-size: 1.5vw;
+            font-size: 2.1vw;
             font-weight: 800;
+            line-height: 1.1;
         }
 
-        /* Wind Speed Box */
+        /* Enlarged Wind Dial Box */
         .wind-box {
             flex: 1;
             background: #161b22;
             border: 2px solid #30363d;
             border-radius: 8px;
-            padding: 8px;
+            padding: 6px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 5px;
+            justify-content: space-around;
+        }
+        .wind-label {
+            font-size: 0.8vw;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
         }
         .compass {
-            width: 4.5vw;
-            height: 4.5vw;
-            border: 2px solid #30363d;
+            width: 6.8vw;
+            height: 6.8vw;
+            border: 3px solid #30363d;
             border-radius: 50%;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
+            font-weight: 900;
             color: #8b949e;
+            background: rgba(255, 255, 255, 0.02);
         }
-        .compass-n { position: absolute; top: 2px; font-size: 0.6vw; }
-        .compass-s { position: absolute; bottom: 2px; font-size: 0.6vw; }
-        .compass-w { position: absolute; left: 4px; font-size: 0.6vw; }
-        .compass-e { position: absolute; right: 4px; font-size: 0.6vw; }
-        .wind-arrow { font-size: 1.5vw; transition: transform 0.5s ease; display: inline-block; }
-        .wind-text { font-size: 1.2vw; font-weight: 800; }
+        .compass-n { position: absolute; top: 3px; font-size: 0.8vw; }
+        .compass-s { position: absolute; bottom: 3px; font-size: 0.8vw; }
+        .compass-w { position: absolute; left: 5px; font-size: 0.8vw; }
+        .compass-e { position: absolute; right: 5px; font-size: 0.8vw; }
+        .wind-arrow { 
+            font-size: 2.8vw; 
+            transition: transform 0.5s ease; 
+            display: inline-block;
+            color: #58a6ff;
+            font-weight: 900;
+        }
+        .wind-text { 
+            font-size: 1.8vw; 
+            font-weight: 900; 
+            line-height: 1;
+        }
 
-        /* Right Side (Google Calendar) */
+        /* Right Column (Google Calendar scaled 25%) */
         .right-side {
             width: 35vw;
             height: 100%;
@@ -203,12 +243,15 @@
             border: 2px solid #30363d;
             border-radius: 8px;
             overflow: hidden;
+            position: relative;
         }
         .calendar-frame {
-            width: 100%;
-            height: 100%;
+            width: 80%;
+            height: 80%;
             border: none;
             filter: invert(90%) hue-rotate(180deg);
+            transform: scale(1.25);
+            transform-origin: 0 0;
         }
     </style>
 </head>
@@ -217,13 +260,16 @@
     <!-- Top Header Row -->
     <div class="header-row">
         <div class="header-box time-box">
-            <div class="clock outlined-num" id="clock">--:-- --</div>
+            <div class="clock outlined-num daytime" id="clock">--:-- --</div>
             <div class="date" id="date">Loading...</div>
         </div>
         <div class="header-box hourly-box" id="hourly-forecast"></div>
         <div class="header-box local-temp-box">
-            <div class="card-label">Local Temp / Heat Index</div>
-            <div class="temp-val-large outlined-num" id="local-temp">--° / --°</div>
+            <div class="temp-container">
+                <span class="temp-val-primary outlined-num" id="local-temp-main">--°</span>
+                <span class="temp-slash">/</span>
+                <span class="temp-val-secondary outlined-num" id="local-temp-heat">--°</span>
+            </div>
         </div>
     </div>
 
@@ -239,16 +285,16 @@
                 </div>
                 <div class="remote-box">
                     <div>
-                        <div class="card-label">Anthem, AZ Temp</div>
+                        <div class="remote-label">Anthem, AZ Temp</div>
                         <div class="remote-val outlined-num" id="anthem-temp">--° / --°</div>
                     </div>
                     <div>
-                        <div class="card-label">Riyadh, Saudi Arabia Temp</div>
+                        <div class="remote-label">Riyadh, Saudi Arabia Temp</div>
                         <div class="remote-val outlined-num" id="riyadh-temp">--° / --°</div>
                     </div>
                 </div>
                 <div class="wind-box">
-                    <div class="card-label">Wind / Gusts</div>
+                    <div class="wind-label">Wind / Gusts</div>
                     <div class="compass">
                         <span class="compass-n">N</span>
                         <span class="compass-s">S</span>
@@ -273,6 +319,9 @@
         const RIYADH_LAT = 24.7136;
         const RIYADH_LON = 46.6753;
 
+        let sunriseTime = null;
+        let sunsetTime = null;
+
         function getDynamicColor(value) {
             if (value <= 59) return '#ffffff';
             if (value <= 69) return '#87ceeb';
@@ -288,23 +337,61 @@
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12 || 12;
-            document.getElementById('clock').textContent = `${hours}:${minutes} ${ampm}`;
+            
+            const clockEl = document.getElementById('clock');
+            clockEl.textContent = `${hours}:${minutes} ${ampm}`;
             document.getElementById('date').textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+            // Dynamic Day/Night Color Switch based on Daily Sunrise/Sunset
+            if (sunriseTime && sunsetTime) {
+                if (now >= sunriseTime && now < sunsetTime) {
+                    clockEl.classList.add('daytime');
+                    clockEl.classList.remove('nighttime');
+                } else {
+                    clockEl.classList.add('nighttime');
+                    clockEl.classList.remove('daytime');
+                }
+            } else {
+                // Fallback standard daytime hours (6 AM to 7 PM)
+                const currentHour = now.getHours();
+                if (currentHour >= 6 && currentHour < 19) {
+                    clockEl.classList.add('daytime');
+                    clockEl.classList.remove('nighttime');
+                } else {
+                    clockEl.classList.add('nighttime');
+                    clockEl.classList.remove('daytime');
+                }
+            }
         }
         setInterval(updateClock, 1000);
         updateClock();
 
         async function fetchWeather() {
             try {
-                const localRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LOCAL_LAT}&longitude=${LOCAL_LON}&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,precipitation_probability&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`);
+                const localRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LOCAL_LAT}&longitude=${LOCAL_LON}&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,precipitation_probability&daily=sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`);
                 const localData = await localRes.json();
 
+                // Save Sunrise / Sunset for exact day/night clock color tracking
+                if (localData.daily && localData.daily.sunrise && localData.daily.sunset) {
+                    sunriseTime = new Date(localData.daily.sunrise[0]);
+                    sunsetTime = new Date(localData.daily.sunset[0]);
+                    updateClock();
+                }
+
+                // Local Main Temp and Heat Index
                 const lTemp = Math.round(localData.current.temperature_2m);
                 const lApparent = Math.round(localData.current.apparent_temperature);
-                const lEl = document.getElementById('local-temp');
-                lEl.textContent = `${lTemp}° / ${lApparent}°`;
-                lEl.style.color = getDynamicColor(lTemp);
+                
+                const mainEl = document.getElementById('local-temp-main');
+                const heatEl = document.getElementById('local-temp-heat');
+                
+                mainEl.textContent = `${lTemp}°`;
+                mainEl.style.color = getDynamicColor(lTemp);
+                
+                heatEl.textContent = `${lApparent}°`;
+                heatEl.style.color = getDynamicColor(lApparent);
 
+                // Wind Dial and Speed Values
                 const wSpeed = Math.round(localData.current.wind_speed_10m);
                 const wGust = Math.round(localData.current.wind_gusts_10m);
                 const wDir = localData.current.wind_direction_10m;
@@ -314,6 +401,7 @@
                 windEl.style.color = getDynamicColor(wSpeed);
                 document.getElementById('wind-arrow').style.transform = `rotate(${wDir}deg)`;
 
+                // Hourly Forecast
                 const hourlyContainer = document.getElementById('hourly-forecast');
                 hourlyContainer.innerHTML = '';
                 const currentHour = new Date().getHours();
@@ -334,6 +422,7 @@
                     hourlyContainer.appendChild(item);
                 }
 
+                // Anthem Temp
                 const anthemRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${ANTHEM_LAT}&longitude=${ANTHEM_LON}&current=temperature_2m,apparent_temperature&temperature_unit=fahrenheit&timezone=auto`);
                 const anthemData = await anthemRes.json();
                 const aTemp = Math.round(anthemData.current.temperature_2m);
@@ -342,6 +431,7 @@
                 aEl.textContent = `${aTemp}° / ${aApparent}°`;
                 aEl.style.color = getDynamicColor(aTemp);
 
+                // Riyadh Temp
                 const riyadhRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${RIYADH_LAT}&longitude=${RIYADH_LON}&current=temperature_2m,apparent_temperature&temperature_unit=fahrenheit&timezone=auto`);
                 const riyadhData = await riyadhRes.json();
                 const rTemp = Math.round(riyadhData.current.temperature_2m);
